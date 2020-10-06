@@ -1,0 +1,7 @@
+jsonlines
+prettytable
+tqdm
+torch
+unidecode
+nltk
+requests
