@@ -1,7 +1,7 @@
 use fairseq from https://github.com/nicola-decao/fairseq on the `add_PrefixConstrainedBeamSearch` branch
 
 # Models
-You need to download vocabularies in the same folder of the model 
+You need to download dictionaries in the same folder of the model 
 - [http://dl.fbaipublicfiles.com/GENRE/dict.source.txt](http://dl.fbaipublicfiles.com/GENRE/dict.source.txt)
 - [http://dl.fbaipublicfiles.com/GENRE/dict.target.txt](http://dl.fbaipublicfiles.com/GENRE/dict.target.txt)
 - Entity Disambiguation: [http://dl.fbaipublicfiles.com/GENRE/entity_disambiguation.pt](http://dl.fbaipublicfiles.com/GENRE/entity_disambiguation.pt)
