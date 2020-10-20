@@ -7,15 +7,12 @@ from tqdm import tqdm
 from genre.utils import create_input
 
 
-def convert_kilt_to_fairseq(input_folder, output_folder, dataset_name, split_name):
+def convert_kilt_to_fairseq(dataset, mode):
 
-    dataset_fairseq = []
-    with jsonlines.open(
-        os.path.join(input_folder, "{}-{}-kilt.jsonl".format(dataset_name, split_name))
-    ) as f:
-        for doc in tqdm(
-            f, desc="Processing"
-        ):
+    source = []
+    target = []
+    for doc in tqdm(dataset, desc="Processing"):
+        if mode == "title":
             for title in set(
                 prov["title"]
                 for out in doc["output"]
@@ -23,53 +20,26 @@ def convert_kilt_to_fairseq(input_folder, output_folder, dataset_name, split_nam
                 for prov in out["provenance"]
                 if prov.get("bleu_score", 1) > 0.5
             ):
-                dataset_fairseq.append((create_input(doc, max_length=384), title))
+                source.append(create_input(doc, max_length=384))
+                target.append(title)
                 if "meta" in doc and "template_questions" in doc["meta"]:
                     for template_question in doc["meta"]["template_questions"]:
-                        dataset_fairseq.append((template_question, title))
-
-    if not os.path.exists(
-        os.path.join(
-            output_folder,
-            dataset_name,
-        )
-    ):
-        os.mkdir(
-            os.path.join(
-                output_folder,
-                dataset_name,
-            )
-        )
-
-    with open(
-        os.path.join(
-            output_folder,
-            dataset_name,
-            "{}.source".format(split_name),
-        ),
-        "w",
-    ) as f:
-        f.writelines(
-            [
-                doc[0].replace("\r", ">>").replace("\n", ">>") + "\n"
-                for doc in dataset_fairseq
-            ]
-        )
-
-    with open(
-        os.path.join(
-            output_folder,
-            dataset_name,
-            "{}.target".format(split_name),
-        ),
-        "w",
-    ) as f:
-        f.writelines(
-            [
-                doc[1].replace("\r", ">>").replace("\n", ">>") + "\n"
-                for doc in dataset_fairseq
-            ]
-        )
+                        source.append(template_question)
+                        target.append(title)
+        elif mode == "answer":
+            for answer in set(
+                out["answer"]
+                for out in doc["output"]
+                if "answer" in out
+            ):
+                source.append(create_input(doc, max_length=384))
+                target.append(answer)
+                if "meta" in doc and "template_questions" in doc["meta"]:
+                    for template_question in doc["meta"]["template_questions"]:
+                        source.append(template_question)
+                        target.append(answer)
+                        
+    return source, target
 
 
 if __name__ == "__main__":
@@ -77,20 +47,21 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        "input_path",
+        "input_filename",
         type=str,
-        help="Path where to load the dataset(s)",
+        help="Filename of the KILT dataset",
     )
     parser.add_argument(
         "output_path",
         type=str,
-        help="Path where to save the converted dataset(s)",
+        help="Path where to save the converted dataset",
     )
     parser.add_argument(
-        "split_name",
+        "--mode",
         type=str,
-        choices=["train", "dev"],
-        help="Path where to save the converted dataset(s)",
+        choices=["title", "answer"],
+        default="title",
+        help="Target string",
     )
     parser.add_argument(
         "-d",
@@ -111,23 +82,31 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
-    
+
     logging.basicConfig(level=args.loglevel)
 
-    datasets_filenames = (
-        [os.path.join(args.input_path, fname) for fname in os.listdir(args.input_path)]
-        if os.path.isdir(args.input_path)
-        else [args.input_path]
+    logging.info("Loading {}".format(args.input_filename))
+    with jsonlines.open(args.input_filename) as f:
+        dataset = [e for e in f]
+    split_name = os.path.basename(args.input_filename).split("-")[1]
+        
+    source, target = convert_kilt_to_fairseq(
+        dataset,
+        args.mode,
     )
 
-    for dataset_filename in datasets_filenames:
+    if not os.path.exists(args.output_path):
+        os.mkdir(args.output_path)
 
-        logging.info("Loading {}".format(dataset_filename))
-        with jsonlines.open(dataset_filename) as f:
-            dataset = [e for e in f]
+    for type_name, data in (("source", source), ("target", target)):
 
-        source, target = convert_kilt_to_fairseq(
-            dataset,
-        )
-        
-        args.output, dataset_name, split_name
+        with open(
+            os.path.join(
+                args.output_path,
+                "{}.{}".format(split_name, type_name),
+            ),
+            "w",
+        ) as f:
+            f.writelines(
+                [doc.replace("\r", ">>").replace("\n", ">>") + "\n" for doc in data]
+            )

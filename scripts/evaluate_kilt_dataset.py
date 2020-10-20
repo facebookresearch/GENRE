@@ -29,7 +29,7 @@ def evaluate_kilt_dataset(
     trie=None,
     title2id={},
 ):
-    
+
     dataset_original = deepcopy(dataset)
 
     gold = []
@@ -187,8 +187,10 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
-    
-    assert (os.path.isdir(args.input_path) and os.path.isdir(args.output_path)) or (not os.path.isdir(args.input_path) and not os.path.isdir(args.output_path)), "`input_path` and `output_path` has either to be both files or folders"
+
+    assert (os.path.isdir(args.input_path) and os.path.isdir(args.output_path)) or (
+        not os.path.isdir(args.input_path) and not os.path.isdir(args.output_path)
+    ), "`input_path` and `output_path` has either to be both files or folders"
 
     logging.basicConfig(level=args.loglevel)
 
@@ -215,8 +217,15 @@ if __name__ == "__main__":
         title2id = {}
 
     results = PrettyTable()
-    results.field_names = ["Dataset", "F1", "Precision", "Recall", "R-precision", "Recall@5"]
-    
+    results.field_names = [
+        "Dataset",
+        "F1",
+        "Precision",
+        "Recall",
+        "R-precision",
+        "Recall@5",
+    ]
+
     datasets_filenames = (
         [os.path.join(args.input_path, fname) for fname in os.listdir(args.input_path)]
         if os.path.isdir(args.input_path)
@@ -244,7 +253,10 @@ if __name__ == "__main__":
             [
                 os.path.splitext(os.path.basename(dataset_filename))[0],
             ]
-            + ["{:.2f}".format(100 * e) for e in (f1, precision, recall, rprec, recall_at_5)]
+            + [
+                "{:.2f}".format(100 * e)
+                for e in (f1, precision, recall, rprec, recall_at_5)
+            ]
         )
 
         logging.info("Saving dataset")
