@@ -1,14 +1,13 @@
-import pickle
-from collections import defaultdict
-import numpy as np
-import time
-import sys
-
 # print("preprocessing/util.py print sys.path")
 # print(sys.path)
 import os
+import pickle
 import string
+import sys
+import time
+from collections import defaultdict
 
+import numpy as np
 
 # import preprocessing.config as config
 # import model.config as config

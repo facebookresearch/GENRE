@@ -1,4 +1,3 @@
-
 #             outputs = [
 #             [[hyp["text"], hyp["logprob"]] for hyp in sent]
 #             for sent in outputs
@@ -32,7 +31,7 @@
 
 # re.sub(r"\{ (.*?) \} \[ (.*?) \]", r"{\1}[\2]", outputs[0][4]["text"]).strip()
 
-    
+
 #         def decode(tokens):
 #             tokens = self.bart.decode(tokens)
 #             tokens = re.sub(r"{.*?", "{ ", tokens)
@@ -51,9 +50,8 @@
 #             .replace("]", ")")
 
 #         ) for e in inputs]
-        
-    
-    
+
+
 #     def get_entities(self, input_, output_):
 
 #         input_ = input_.replace(u'\xa0',' ') + "  -"
@@ -64,7 +62,7 @@
 #         i = 0
 #         j = 0
 #         while j < len(output_) and i < len(input_):
-            
+
 #             if status == "o":
 #                 if input_[i] == output_[j] or (
 #                     output_[j] in "()" and input_[i] in "[]{}"
@@ -148,18 +146,18 @@
 #             ]
 
 #         outputs = combined_outputs
-        
+
 #         print("outputs:")
 #         pprint(outputs)
-        
+
 #         output_ = re.sub(r"\s{2,}", " ", outputs[0][0])
 #         output_ = re.sub(r"\. \. \} \[ (.*?) \]", r". } [ \1 ] .", output_)
 #         output_ = re.sub(r"\, \} \[ (.*?) \]", r" } [ \1 ] ,", output_)
 #         output_ = re.sub(r"\; \} \[ (.*?) \]", r" } [ \1 ] ;", output_)
-        
+
 #         print("output:", output_)
 #         return self.get_entities(input_, output_)
-    
+
 #     def get_markdown(self, sent, spans):
 #         text = ""
 #         last_end = 0

@@ -1,45 +1,37 @@
-
-import jsonlines
 import argparse
+import csv
+import html
 import json
+import math
 import os
-import string
-import kilt.kilt_utils as utils
-from fairseq.models.bart import BARTModel
-from tqdm import tqdm
-from fairseq.data.data_utils import collate_tokens
-from genre.trie import Trie
-import os
+import pickle
+import random
 import re
 import shutil
-import json
-import jsonlines
-import json
-import numpy as np
-from collections import Counter
-from tqdm import tqdm
-import kilt.kilt_utils as utils
-from kilt.eval_retrieval import compute
-from collections import defaultdict
-import pickle
-from fairseq.models.bart import BARTModel
-from fairseq.data.data_utils import collate_tokens
-import torch
-from pprint import pprint
-import math
-import random
 import string
-from pprint import pprint
-import html
-import csv
 import unicodedata
-from IPython.display import display, Markdown, Latex
-import re
-import regex
-from genre.my_fetcher import FetchCandidateEntities, FetchFilteredCoreferencedCandEntities, load_wiki_name_id_map, load_redirections, load_disambiguations, load_disambiguations2
+from collections import Counter, defaultdict
+from pprint import pprint
 from types import SimpleNamespace
+
+import jsonlines
+import kilt.kilt_utils as utils
+import numpy as np
+import regex
+import torch
+from fairseq.data.data_utils import collate_tokens
+from fairseq.models.bart import BARTModel
+from IPython.display import Latex, Markdown, display
+from kilt.eval_retrieval import compute
 from nltk.corpus import stopwords
+from tqdm import tqdm
+
 from genre.base_model import GENRE
+from genre.my_fetcher import (FetchCandidateEntities,
+                              FetchFilteredCoreferencedCandEntities,
+                              load_disambiguations, load_disambiguations2,
+                              load_redirections, load_wiki_name_id_map)
+from genre.trie import Trie
 
 
 class GeNeRe(object):
@@ -50,10 +42,12 @@ class GeNeRe(object):
         device="cuda:0",
     ):
 
-                
-        with open("/checkpoint/fabiopetroni/GENRE/home/GeNeRe/__GENRE/data/el/global_el_mention_trie2.pkl", "rb") as f:
+        with open(
+            "/checkpoint/fabiopetroni/GENRE/home/GeNeRe/__GENRE/data/el/global_el_mention_trie2.pkl",
+            "rb",
+        ) as f:
             self.mention_trie = pickle.load(f)
-        
+
         print("loading model", os.path.join(model_path, checkpoint_file))
         self.bart = (
             GENRE.from_pretrained(model_path, checkpoint_file=checkpoint_file)
@@ -69,8 +63,13 @@ class GeNeRe(object):
         }
         self.codes["EOS"] = [2]
 
-        args = SimpleNamespace(lowercase_spans=False, lowercase_p_e_m=False, cand_ent_num=100,
-                               persons_coreference=True, persons_coreference_merge=True)
+        args = SimpleNamespace(
+            lowercase_spans=False,
+            lowercase_p_e_m=False,
+            cand_ent_num=100,
+            persons_coreference=True,
+            persons_coreference_merge=True,
+        )
 
         self.fetcher = FetchFilteredCoreferencedCandEntities(args)
         _, self.wiki_id_name_map = load_wiki_name_id_map(lowercase=False)
@@ -89,20 +88,22 @@ class GeNeRe(object):
         entities_universe = list(set(entities_universe))
 
         self.entities_universe = {
-            e.replace("_", " "): e
-            for e in entities_universe if e.replace("_", " ")
+            e.replace("_", " "): e for e in entities_universe if e.replace("_", " ")
         }
 
         self.redirections = load_redirections(lowercase=False)
 
         with open("data/el/aida_means.pkl", "rb") as f:
             self.aida_means = pickle.load(f)
-            
-        self.stopwords = set(stopwords.words('english'))
 
+        self.stopwords = set(stopwords.words("english"))
 
     def get_candidates(self, mention):
-        if mention in string.punctuation or mention.lower() in self.stopwords or mention.strip() == "":
+        if (
+            mention in string.punctuation
+            or mention.lower() in self.stopwords
+            or mention.strip() == ""
+        ):
             return ["NIL"]
 
         output = list(self.fetcher.fetchCandidateEntities.process(mention))[0]
@@ -110,12 +111,19 @@ class GeNeRe(object):
 
         if mention in self.aida_means:
             output += [
-                html.unescape(unicodedata.normalize("NFC", 
-                    e.encode('ascii').decode('unicode-escape'))).replace("_", " ")
+                html.unescape(
+                    unicodedata.normalize(
+                        "NFC", e.encode("ascii").decode("unicode-escape")
+                    )
+                ).replace("_", " ")
                 for e in self.aida_means[mention]
             ]
 
-        output = [e for e in set(output) if e in self.entities_universe and "given name" not in e]
+        output = [
+            e
+            for e in set(output)
+            if e in self.entities_universe and "given name" not in e
+        ]
 
         if not output:
             return ["NIL"]
@@ -124,29 +132,29 @@ class GeNeRe(object):
 
     def get_predictions(self, inputs):
 
-#         def apply_mask_fn(x, prev_output_tokens, original_batch_idxs):
-#             beam_size = x.shape[0] // original_batch_idxs.shape[0]
-#             original_batch_idxs = (
-#                 original_batch_idxs.unsqueeze(-1)
-#                 .repeat((1, beam_size))
-#                 .flatten()
-#                 .tolist()
-#             )
+        #         def apply_mask_fn(x, prev_output_tokens, original_batch_idxs):
+        #             beam_size = x.shape[0] // original_batch_idxs.shape[0]
+        #             original_batch_idxs = (
+        #                 original_batch_idxs.unsqueeze(-1)
+        #                 .repeat((1, beam_size))
+        #                 .flatten()
+        #                 .tolist()
+        #             )
 
-#             mask = torch.full_like(x, -math.inf)
-#             for sent_i, (sent, batch_i) in enumerate(
-#                 zip(prev_output_tokens, original_batch_idxs)
-#             ):
-#                 sent = sent.tolist()
-#                 status = get_status(sent)
-#                 mask[
-#                     sent_i, :, get_allowed_tokens(
-#                         sent, 
-#                         sent_origs[batch_i], 
-#                         status
-#                     )
-#                 ] = 0
-#             return mask
+        #             mask = torch.full_like(x, -math.inf)
+        #             for sent_i, (sent, batch_i) in enumerate(
+        #                 zip(prev_output_tokens, original_batch_idxs)
+        #             ):
+        #                 sent = sent.tolist()
+        #                 status = get_status(sent)
+        #                 mask[
+        #                     sent_i, :, get_allowed_tokens(
+        #                         sent,
+        #                         sent_origs[batch_i],
+        #                         status
+        #                     )
+        #                 ] = 0
+        #             return mask
 
         def get_status(sent):
             c = [
@@ -159,14 +167,7 @@ class GeNeRe(object):
                 )
                 for f in e
             ]
-            status = (
-                sum(
-                    e
-                    in c
-                    for e in sent
-                )
-                % 4
-            )
+            status = sum(e in c for e in sent) % 4
 
             if status == 0:
                 return "o"
@@ -175,13 +176,13 @@ class GeNeRe(object):
             else:
                 return "e"
 
-#         def get_allowed_tokens(sent, sent_orig, status):
+        #         def get_allowed_tokens(sent, sent_orig, status):
         def get_allowed_tokens(batch_i, sent):
             sent = sent.tolist()
             status = get_status(sent)
             sent_orig = sent_origs[batch_i]
 
-#             print(self.bart.decode(torch.tensor([e for e in sent if e != 1])))
+            #             print(self.bart.decode(torch.tensor([e for e in sent if e != 1])))
             if status == "o":
                 trie_out = get_trie_outside(sent, sent_orig)
             elif status == "m":
@@ -192,11 +193,11 @@ class GeNeRe(object):
                     trie_out = get_trie_outside(sent, sent_orig)
             else:
                 raise RuntimeError
-                
-#             print(status, trie_out)
-#             if trie_out == None:
-#                 raise RuntimeError
-            
+
+            #             print(status, trie_out)
+            #             if trie_out == None:
+            #                 raise RuntimeError
+
             return trie_out
 
         def get_pointer_end(sent, sent_orig):
@@ -232,7 +233,9 @@ class GeNeRe(object):
             pointer_end = get_pointer_end(sent, sent_orig)
 
             if pointer_end:
-                if sent_orig[pointer_end] not in self.codes["EOS"] and sent_orig[pointer_end] in self.mention_trie.get([]):
+                if sent_orig[pointer_end] not in self.codes["EOS"] and sent_orig[
+                    pointer_end
+                ] in self.mention_trie.get([]):
                     return [sent_orig[pointer_end]] + self.codes["{"]
                 else:
                     return [sent_orig[pointer_end]]
@@ -243,12 +246,12 @@ class GeNeRe(object):
 
             pointer_start, _ = get_pointer_mention(sent)
             if pointer_start + 1 < len(sent):
-                ment_next = self.mention_trie.get(sent[pointer_start+1:])
+                ment_next = self.mention_trie.get(sent[pointer_start + 1 :])
             else:
                 ment_next = self.mention_trie.get([])
 
             pointer_end = get_pointer_end(sent, sent_orig)
-            
+
             if pointer_end:
                 if sent_orig[pointer_end] not in self.codes["EOS"]:
                     if sent_orig[pointer_end] in ment_next:
@@ -269,16 +272,20 @@ class GeNeRe(object):
             pointer_start, pointer_end = get_pointer_mention(sent)
 
             if pointer_start + 1 != pointer_end:
-#                 print(pointer_start+1,pointer_end, sent)
-                mention = self.bart.decode(torch.tensor(sent[pointer_start+1:pointer_end])).strip()
+                #                 print(pointer_start+1,pointer_end, sent)
+                mention = self.bart.decode(
+                    torch.tensor(sent[pointer_start + 1 : pointer_end])
+                ).strip()
                 candidates = self.get_candidates(mention)
 
                 if candidates:
-                    return Trie([
-                        self.bart.encode(" }} [ {} ]".format(e)).tolist()[1:] 
-                        for e in candidates
-                    ]).get(sent[pointer_end:])
-            
+                    return Trie(
+                        [
+                            self.bart.encode(" }} [ {} ]".format(e)).tolist()[1:]
+                            for e in candidates
+                        ]
+                    ).get(sent[pointer_end:])
+
             return []
 
         def decode(tokens):
@@ -290,31 +297,33 @@ class GeNeRe(object):
             tokens = re.sub(r"\s{2,}", " ", tokens)
             return tokens
 
-        inputs = [(
-            " {} ".format(e)
-            .replace(u'\xa0',' ')
-            .replace("{", "(")
-            .replace("}", ")")
-            .replace("[", "(")
-            .replace("]", ")")
+        inputs = [
+            (
+                " {} ".format(e)
+                .replace(u"\xa0", " ")
+                .replace("{", "(")
+                .replace("}", ")")
+                .replace("[", "(")
+                .replace("]", ")")
+            )
+            for e in inputs
+        ]
 
-        ) for e in inputs]
-        
-#         new_inputs = []
-#         for s in inputs:
-#             sent = Sentence(s)
-#             self.tagger.predict(sent)
-#             last_end = 0
-#             new_s = ""
-#             for entity in sent.get_spans('ner'):
-#                 new_s += s[last_end:entity.start_pos] + " { " + s[entity.start_pos:entity.end_pos] + " } "
-#                 last_end = entity.end_pos
-#             new_s += s[last_end:]
-#             new_s = new_s.replace(", }", " } ,").replace(". }", " } .").replace("; }", " } ;").replace(": }", " } :")
-#             new_inputs.append(new_s)
+        #         new_inputs = []
+        #         for s in inputs:
+        #             sent = Sentence(s)
+        #             self.tagger.predict(sent)
+        #             last_end = 0
+        #             new_s = ""
+        #             for entity in sent.get_spans('ner'):
+        #                 new_s += s[last_end:entity.start_pos] + " { " + s[entity.start_pos:entity.end_pos] + " } "
+        #                 last_end = entity.end_pos
+        #             new_s += s[last_end:]
+        #             new_s = new_s.replace(", }", " } ,").replace(". }", " } .").replace("; }", " } ;").replace(": }", " } :")
+        #             new_inputs.append(new_s)
 
-#         inputs = new_inputs
-        
+        #         inputs = new_inputs
+
         sent_origs = [[2] + self.bart.encode(e).tolist()[1:] for e in inputs]
 
         outputs = self.bart.sample(
@@ -324,27 +333,26 @@ class GeNeRe(object):
             prefix_allowed_tokens_fn=get_allowed_tokens,
         )
 
-        outputs = [
-            [[hyp["text"], hyp["logprob"]] for hyp in sent]
-            for sent in outputs
-        ]
+        outputs = [[[hyp["text"], hyp["logprob"]] for hyp in sent] for sent in outputs]
 
         return outputs
 
     def get_entities(self, input_, output_):
 
-#         if hasattr(self, "dataset_coref"):
-#             coref = self.dataset_coref[input_]
-        
-        input_ = input_.replace(u'\xa0',' ') + "  -"
-        output_ = output_.replace("{ ", "{").replace(" } [ ", "}[").replace(" ]", "]") + "  -"
+        #         if hasattr(self, "dataset_coref"):
+        #             coref = self.dataset_coref[input_]
+
+        input_ = input_.replace(u"\xa0", " ") + "  -"
+        output_ = (
+            output_.replace("{ ", "{").replace(" } [ ", "}[").replace(" ]", "]") + "  -"
+        )
 
         entities = []
         status = "o"
         i = 0
         j = 0
         while j < len(output_) and i < len(input_):
-            
+
             if status == "o":
                 if input_[i] == output_[j] or (
                     output_[j] in "()" and input_[i] in "[]{}"
@@ -389,7 +397,7 @@ class GeNeRe(object):
                     if len(entities[-1][2]) <= 1:
                         del entities[-1]
                     elif entities[-1][2] == "NIL":
-#                         entities[-1][2] = input_[entities[-1][0]:entities[-1][0]+entities[-1][1]].replace(" ", "_")
+                        #                         entities[-1][2] = input_[entities[-1][0]:entities[-1][0]+entities[-1][1]].replace(" ", "_")
                         del entities[-1]
                     elif entities[-1][2] in self.redirections:
                         entities[-1][2] = self.redirections[entities[-1][2]]
@@ -399,9 +407,9 @@ class GeNeRe(object):
                 else:
                     raise RuntimeError
 
-#         if hasattr(self, "dataset_coref"):
-#             return entities, coref
-                    
+        #         if hasattr(self, "dataset_coref"):
+        #             return entities, coref
+
         return entities
 
     def get_prediction(self, input_, max_length=384):
@@ -411,10 +419,17 @@ class GeNeRe(object):
 
         i = 0
         inputs = []
-        for le in [len(e) for e in utils.chunk_it(
-            input_.split(" "), len(input_.split(" ")) // max_length
-        )] if len(input_.split(" ")) > max_length else [len(input_.split(" "))]:
-            inputs.append(" ".join(input_.split(" ")[i:i+le]))
+        for le in (
+            [
+                len(e)
+                for e in utils.chunk_it(
+                    input_.split(" "), len(input_.split(" ")) // max_length
+                )
+            ]
+            if len(input_.split(" ")) > max_length
+            else [len(input_.split(" "))]
+        ):
+            inputs.append(" ".join(input_.split(" ")[i : i + le]))
             i += le
 
         outputs = self.get_predictions(inputs)
@@ -432,24 +447,26 @@ class GeNeRe(object):
             ]
 
         outputs = combined_outputs
-        
+
         print("outputs:")
         pprint(outputs)
-        
+
         output_ = re.sub(r"\s{2,}", " ", outputs[0][0])
         output_ = re.sub(r"\. \. \} \[ (.*?) \]", r". } [ \1 ] .", output_)
         output_ = re.sub(r"\, \} \[ (.*?) \]", r" } [ \1 ] ,", output_)
         output_ = re.sub(r"\; \} \[ (.*?) \]", r" } [ \1 ] ;", output_)
-        
+
         print("output:", output_)
         return self.get_entities(input_, output_)
-    
+
     def get_markdown(self, sent, spans):
         text = ""
         last_end = 0
         for begin, length, href in spans:
             text += sent[last_end:begin]
-            text += "[{}](https://en.wikipedia.org/wiki/{})".format(sent[begin:begin + length], href)
+            text += "[{}](https://en.wikipedia.org/wiki/{})".format(
+                sent[begin : begin + length], href
+            )
             last_end = begin + length
 
         text += sent[last_end:]

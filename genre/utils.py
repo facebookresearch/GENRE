@@ -1,4 +1,5 @@
 import html
+
 from genre.trie import Trie
 
 
