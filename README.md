@@ -12,30 +12,40 @@ You need to download dictionaries in the same folder of the model
 - model_path="/checkpoint/fabiopetroni/GENRE/home/GeNeRe/__GENRE/models/el"
 - checkpoint_file='checkpoint_aidayago.pt'
 
+# Models (work in progress)
 
-# Models for [pytorch / fairseq](https://github.com/pytorch/fairseq) (work in progress)
 ## Entity Disambiguation
-- [fairseq_entity_disambiguation_aidayago.tar.gz](http://dl.fbaipublicfiles.com/GENRE/fairseq_entity_disambiguation_aidayago.tar.gz)
-- [fairseq_entity_disambiguation_wiki.tar.gz](http://dl.fbaipublicfiles.com/GENRE/fairseq_entity_disambiguation_wiki.tar.gz)
+| Dataset | [pytorch / fairseq](https://github.com/pytorch/fairseq)   | [huggingface / transformers](https://github.com/huggingface/transformers) |
+| -------- | -------- | ----------- |
+| AidaYago2 | [fairseq_entity_disambiguation_aidayago.tar.gz](http://dl.fbaipublicfiles.com/GENRE/fairseq_entity_disambiguation_aidayago.tar.gz)|[hf_entity_disambiguation_aidayago.tar.gz](http://dl.fbaipublicfiles.com/GENRE/hf_entity_disambiguation_aidayago.tar.gz)|
+| Wikipedia | [fairseq_entity_disambiguation_wiki.tar.gz](http://dl.fbaipublicfiles.com/GENRE/fairseq_entity_disambiguation_wiki.tar.gz)|[hf_entity_disambiguation_wiki.tar.gz](http://dl.fbaipublicfiles.com/GENRE/hf_entity_disambiguation_wiki.tar.gz)|
 
 ## End-to-End Entity Linking
-- [fairseq_entity_linking_aidayago.tar.gz](http://dl.fbaipublicfiles.com/GENRE/fairseq_entity_linking_aidayago.tar.gz)
-- [fairseq_entity_linking_wiki.tar.gz](http://dl.fbaipublicfiles.com/GENRE/fairseq_entity_linking_wiki.tar.gz)
+| Dataset | [pytorch / fairseq](https://github.com/pytorch/fairseq)   | [huggingface / transformers](https://github.com/huggingface/transformers) |
+| -------- | -------- | ----------- |
+| AidaYago2 | [fairseq_entity_linking_aidayago.tar.gz](http://dl.fbaipublicfiles.com/GENRE/fairseq_entity_linking_aidayago.tar.gz)|[hf_entity_linking_aidayago.tar.gz](http://dl.fbaipublicfiles.com/GENRE/hf_entity_linking_aidayago.tar.gz)|
+| Wikipedia | [fairseq_entity_linking_wiki.tar.gz](http://dl.fbaipublicfiles.com/GENRE/fairseq_entity_linking_wiki.tar.gz)|[hf_entity_linking_wiki.tar.gz](http://dl.fbaipublicfiles.com/GENRE/hf_entity_linking_wiki.tar.gz)|
 
 ## Document Retieval
-- [fairseq_document_retrieval_kilt.tar.gz](http://dl.fbaipublicfiles.com/GENRE/fairseq_document_retrieval_kilt.tar.gz)
+| Dataset | [pytorch / fairseq](https://github.com/pytorch/fairseq)   | [huggingface / transformers](https://github.com/huggingface/transformers) |
+| -------- | -------- | ----------- |
+| KILT | [fairseq_document_retrieval_kilt.tar.gz](http://dl.fbaipublicfiles.com/GENRE/fairseq_document_retrieval_kilt.tar.gz)|[hf_document_retrieval_kilt.tar.gz](http://dl.fbaipublicfiles.com/GENRE/hf_document_retrieval_kilt.tar.gz)|
 
-# Models for [huggingface / transformers](https://github.com/huggingface/transformers) (work in progress)
+
+# Dataset (work in progress)
 ## Entity Disambiguation
-- [hf_entity_disambiguation_aidayago.tar.gz](http://dl.fbaipublicfiles.com/GENRE/hf_entity_disambiguation_aidayago.tar.gz)
-- [hf_entity_disambiguation_wiki.tar.gz](http://dl.fbaipublicfiles.com/GENRE/hf_entity_disambiguation_wiki.tar.gz)
+- [ACE2004](http://dl.fbaipublicfiles.com/GENRE/ace2004-test-kilt.jsonl)
+- [AIDA-YAGO2 train set](http://dl.fbaipublicfiles.com/GENRE/aida-train-kilt.jsonl)
+- [AIDA-YAGO2 dev set](http://dl.fbaipublicfiles.com/GENRE/aida-dev-kilt.jsonl)
+- [AIDA-YAGO2 test set](http://dl.fbaipublicfiles.com/GENRE/aida-test-kilt.jsonl)
+- [AQUAINT](http://dl.fbaipublicfiles.com/GENRE/aquaint-test-kilt.jsonl)
+- [MSNBC](http://dl.fbaipublicfiles.com/GENRE/msnbc-test-kilt.jsonl)
+- [WNED-CWEB](http://dl.fbaipublicfiles.com/GENRE/clueweb-test-kilt.jsonl)
+- [WNED-WIKI](http://dl.fbaipublicfiles.com/GENRE/wiki-test-kilt.jsonl)
 
 ## End-to-End Entity Linking
-- [hf_entity_linking_aidayago.tar.gz](http://dl.fbaipublicfiles.com/GENRE/hf_entity_linking_aidayago.tar.gz)
-- [hf_entity_linking_wiki.tar.gz](http://dl.fbaipublicfiles.com/GENRE/hf_entity_linking_wiki.tar.gz)
 
 ## Document Retieval
-- [hf_document_retrieval_kilt.tar.gz](http://dl.fbaipublicfiles.com/GENRE/hf_document_retrieval_kilt.tar.gz)
 
 # Create your trie
 ```python
