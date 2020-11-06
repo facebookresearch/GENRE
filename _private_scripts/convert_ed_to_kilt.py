@@ -1,5 +1,6 @@
-import os
 import argparse
+import os
+
 import jsonlines
 from tqdm import tqdm
 
@@ -138,9 +139,12 @@ if __name__ == "__main__":
                 "input": "{} [START_ENT] {} [END_ENT] {}".format(
                     doc["context"][0], doc["mention"], doc["context"][1]
                 ).strip(),
-                "output": [{"answer": doc["gold"][0].replace("_", " "), "provenance": [{
-                    "title": doc["gold"][0].replace("_", " ")
-                }]}],
+                "output": [
+                    {
+                        "answer": doc["gold"][0].replace("_", " "),
+                        "provenance": [{"title": doc["gold"][0].replace("_", " ")}],
+                    }
+                ],
                 "meta": {
                     "left_context": doc["context"][0],
                     "right_context": doc["context"][1],

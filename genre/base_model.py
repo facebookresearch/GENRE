@@ -25,8 +25,10 @@ class GENREHubInterface(BARTHubInterface):
                 compute_alignment=getattr(args, "print_alignment", False),
             )
 
-        from fairseq.sequence_generator import (SequenceGenerator,
-                                                SequenceGeneratorWithAlignment)
+        from fairseq.sequence_generator import (
+            SequenceGenerator,
+            SequenceGeneratorWithAlignment,
+        )
 
         # Choose search strategy. Defaults to Beam Search.
         sampling = getattr(args, "sampling", False)
@@ -147,6 +149,7 @@ class GENREHubInterface(BARTHubInterface):
             for k, v in kwargs.items():
                 if k != "prefix_allowed_tokens_fn":
                     setattr(gen_args, k, v)
+
         generator = self.__build_generator(
             self.task,
             self.models,

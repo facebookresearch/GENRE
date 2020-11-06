@@ -19,16 +19,8 @@ def get_grid(args):
     update_freq = 4 if args.num_nodes == 1 else 1
 
     restore_file = (
-        "/checkpoint/fabiopetroni/GENRE/home/GeNeRe/__GENRE/models/kilt/checkpoint.pt"
+        "/private/home/ndecao/GENRE/models/bart.large/model.pt"
     )
-    # "/checkpoint/fabiopetroni/GENRE/home/GeNeRe/__GENRE/models/el/checkpoint_aidayago.pt"
-    # "/checkpoint/fabiopetroni/GENRE/home/GeNeRe/__GENRE/models/kilt/checkpoint.pt"
-
-    #     restore_file = "/checkpoint/ndecao/2020-07-29/new_fairseq_query2title_blink_constrained.bart_large.ls0.1.mt2048.uf1.mu200000.dr0.1.atdr0.1.actdr0.0.wd0.01.adam.beta9999.eps1e-08.clip0.1.lr3e-05.warm500.fp16.ngpu32/checkpoint_last.pt"
-
-    #     restore_file = "/checkpoint/ndecao/2020-07-28/new_fairseq_query2title_blink.bart_large.ls0.1.mt2048.uf1.mu200000.dr0.1.atdr0.1.actdr0.0.wd0.01.adam.beta9999.eps1e-08.clip0.1.lr3e-05.warm500.fp16.ngpu32/checkpoint_best_blink.pt"
-
-    #     restore_file = "/checkpoint/ndecao/globalel_wiki_abs.bart_large.ls0.1.mt2048.uf1.mu200000.dr0.1.atdr0.1.actdr0.0.wd0.01.adam.beta9999.eps1e-08.clip0.1.lr3e-05.warm500.fp16.ngpu64/checkpoint_last.pt"
 
     grid += [hyperparam("--restore-file", restore_file)]
 
