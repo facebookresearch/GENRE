@@ -1,0 +1,9 @@
+version: '2'
+services:
+  # spotwrapnifws4test .
+  nifws4test:
+    build: .
+    restart: always
+    container_name: nifws4test
+    ports:
+      - "8080:8080"

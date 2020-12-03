@@ -11,8 +11,9 @@ def convert_kilt_to_fairseq(dataset, mode):
 
     if mode in ("answer_context2query", "context2answer"):
         from kilt.knowledge_source import KnowledgeSource
+
         ks = KnowledgeSource()
-    
+
     source = []
     target = []
     for doc in tqdm(dataset, desc="Processing"):
@@ -32,9 +33,7 @@ def convert_kilt_to_fairseq(dataset, mode):
                         target.append(title)
         elif mode == "query2answer":
             for answer in set(
-                out["answer"]
-                for out in doc["output"]
-                if "answer" in out
+                out["answer"] for out in doc["output"] if "answer" in out
             ):
                 source.append(create_input(doc, max_length=384))
                 target.append(answer)
@@ -43,32 +42,38 @@ def convert_kilt_to_fairseq(dataset, mode):
                         source.append(template_question)
                         target.append(answer)
         elif mode == "answer_context2query":
-            for answer, prov in ((out["answer"], prov)
+            for answer, prov in (
+                (out["answer"], prov)
                 for out in doc["output"]
                 if "provenance" in out and "answer" in out
                 for prov in out["provenance"]
             ):
                 assert prov["start_paragraph_id"] == prov["end_paragraph_id"]
                 page = ks.get_page_by_id(prov["wikipedia_id"])
-                context = page["text"][prov["start_paragraph_id"]
-                                       if prov["start_paragraph_id"] != 0 else
-                                       min(1, len(page["text"]) - 1)].strip()
+                context = page["text"][
+                    prov["start_paragraph_id"]
+                    if prov["start_paragraph_id"] != 0
+                    else min(1, len(page["text"]) - 1)
+                ].strip()
                 source.append("{} >> {}".format(answer, context))
                 target.append(doc["input"])
         elif mode == "context2answer":
-            for answer, prov in ((out["answer"], prov)
+            for answer, prov in (
+                (out["answer"], prov)
                 for out in doc["output"]
                 if "provenance" in out and "answer" in out
                 for prov in out["provenance"]
             ):
                 assert prov["start_paragraph_id"] == prov["end_paragraph_id"]
                 page = ks.get_page_by_id(prov["wikipedia_id"])
-                context = page["text"][prov["start_paragraph_id"]
-                                       if prov["start_paragraph_id"] != 0 else
-                                       min(1, len(page["text"]) - 1)].strip()
+                context = page["text"][
+                    prov["start_paragraph_id"]
+                    if prov["start_paragraph_id"] != 0
+                    else min(1, len(page["text"]) - 1)
+                ].strip()
                 source.append(context)
                 target.append(answer)
-    
+
     return source, target
 
 
@@ -89,7 +94,12 @@ if __name__ == "__main__":
     parser.add_argument(
         "--mode",
         type=str,
-        choices=["query2title", "query2answer", "answer_context2query", "context2answer"],
+        choices=[
+            "query2title",
+            "query2answer",
+            "answer_context2query",
+            "context2answer",
+        ],
         default="title",
         help="Target string",
     )
@@ -119,7 +129,7 @@ if __name__ == "__main__":
     with jsonlines.open(args.input_filename) as f:
         dataset = [e for e in f]
     split_name = os.path.basename(args.input_filename).split("-")[1]
-        
+
     source, target = convert_kilt_to_fairseq(
         dataset,
         args.mode,

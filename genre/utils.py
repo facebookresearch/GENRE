@@ -192,8 +192,8 @@ def get_entity_spans_hf(
 def get_entity_spans_finalize(input_sentences, output_sentences, redirections=None):
     return_outputs = []
     for input_, output_ in zip(input_sentences, output_sentences):
-        input_ += "  -"
-        output_ += "  -"
+        input_ = input_.replace("\xa0", " ") + "  -"
+        output_ = output_.replace("\xa0", " ") + "  -"
 
         entities = []
         status = "o"

@@ -5,6 +5,9 @@ import torch
 from fairseq import search, utils
 from fairseq.models.bart import BARTHubInterface, BARTModel
 from omegaconf import open_dict
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class GENREHubInterface(BARTHubInterface):

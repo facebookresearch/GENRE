@@ -1,7 +1,5 @@
 from collections import defaultdict
 
-from tqdm import tqdm
-
 
 class Trie(object):
     def __init__(self, sequences):

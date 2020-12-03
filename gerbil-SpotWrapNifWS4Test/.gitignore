@@ -1,0 +1,7 @@
+*.class
+*.cache
+.classpath
+.project
+target
+.settings
+gerbil_keys.properties
