@@ -11,6 +11,8 @@ The GENRE system as presented in [Autoregressive Entity Retrieval](https://arxiv
 }
 ```
 
+**Please consider citing our work if you use code from this repository.**
+
 In a nutshell, GENRE uses a sequence-to-sequence approach to entity retrieval (e.g., linking), based on fine-tuned [BART](https://arxiv.org/abs/1910.13461) architecture. GENRE performs retrieval generating the unique entity name conditioned on the input text using constrained beam search to only generate valid identifiers. Here an example of generation for Wikipedia page retrieval for open-domain question answering:
 
 ![](GENRE-animation-QA.gif)
