@@ -26,7 +26,7 @@ GENRE achieves state-of-the-art results on multiple datasets.
 ## Main dependencies
 * python>=3.7
 * pytorch>=1.6
-* fariseq>=0.10 (for training -- optional for inference)
+* fairseq>=0.10 (for training -- optional for inference)
 * transformers>=4.0 (optional for inference)
 
 ## Usage
