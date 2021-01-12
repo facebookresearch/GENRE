@@ -1,7 +1,12 @@
 # GENRE for fairseq
 
-First make sure that you have [fairseq](https://github.com/pytorch/fairseq) installed. 
-
+First make sure that you have [fairseq](https://github.com/pytorch/fairseq) installed. Please install it using:
+```bash
+git clone https://github.com/pytorch/fairseq
+cd fairseq
+pip install --editable ./
+```
+as described in the [fairseq repository](https://github.com/pytorch/fairseq#requirements-and-installation) since `pip install fairseq` has issues.
 
 ## Entity Disambiguation
 Download one of the pre-trained models:
