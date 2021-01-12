@@ -8,7 +8,7 @@ import html
 import re
 
 from genre.entity_linking import (
-    get_end_to_end_prefix_allowed_tokens_fn_fariseq,
+    get_end_to_end_prefix_allowed_tokens_fn_fairseq,
     get_end_to_end_prefix_allowed_tokens_fn_hf)
 from genre.trie import Trie
 
@@ -124,7 +124,7 @@ def get_entity_spans_fairseq(
     redirections=None,
 ):
 
-    prefix_allowed_tokens_fn = get_end_to_end_prefix_allowed_tokens_fn_fariseq(
+    prefix_allowed_tokens_fn = get_end_to_end_prefix_allowed_tokens_fn_fairseq(
         model,
         get_entity_spans_pre_processing(input_sentences),
         mention_trie=mention_trie,

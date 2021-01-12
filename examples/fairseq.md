@@ -116,11 +116,11 @@ and
 
 
 ```python
-from genre.entity_linking import get_end_to_end_prefix_allowed_tokens_fn_fariseq
+from genre.entity_linking import get_end_to_end_prefix_allowed_tokens_fn_fairseq
 
 sentences = ["In 1921, Einstein received a Nobel Prize."]
 
-prefix_allowed_tokens_fn = get_end_to_end_prefix_allowed_tokens_fn_fariseq(model, sentences)
+prefix_allowed_tokens_fn = get_end_to_end_prefix_allowed_tokens_fn_fairseq(model, sentences)
 
 model.sample(
     sentences,
@@ -150,7 +150,7 @@ You can constrain the mentions with a prefix tree (no constrains on candidates)
 ```python
 from genre.trie import Trie
 
-prefix_allowed_tokens_fn = get_end_to_end_prefix_allowed_tokens_fn_fariseq(
+prefix_allowed_tokens_fn = get_end_to_end_prefix_allowed_tokens_fn_fairseq(
     model,
     sentences,
     mention_trie=Trie([
@@ -185,7 +185,7 @@ You can constrain the candidates with a prefix tree (no constrains on mentions)
 
 
 ```python
-prefix_allowed_tokens_fn = get_end_to_end_prefix_allowed_tokens_fn_fariseq(
+prefix_allowed_tokens_fn = get_end_to_end_prefix_allowed_tokens_fn_fairseq(
     model,
     sentences,
     candidates_trie=Trie([
@@ -220,7 +220,7 @@ You can constrain the candidate sets given a mention (no constrains on mentions)
 
 
 ```python
-prefix_allowed_tokens_fn = get_end_to_end_prefix_allowed_tokens_fn_fariseq(
+prefix_allowed_tokens_fn = get_end_to_end_prefix_allowed_tokens_fn_fairseq(
     model,
     sentences,
     mention_to_candidates_dict={
@@ -255,7 +255,7 @@ A combiation of these constraints is also possible
 
 
 ```python
-prefix_allowed_tokens_fn = get_end_to_end_prefix_allowed_tokens_fn_fariseq(
+prefix_allowed_tokens_fn = get_end_to_end_prefix_allowed_tokens_fn_fairseq(
     model,
     sentences,
     mention_trie=Trie([

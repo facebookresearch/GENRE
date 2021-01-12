@@ -32,7 +32,7 @@ def get_end_to_end_prefix_allowed_tokens_fn_hf(
     )
 
 
-def get_end_to_end_prefix_allowed_tokens_fn_fariseq(
+def get_end_to_end_prefix_allowed_tokens_fn_fairseq(
     model,
     sentences: List[str],
     mention_trie: Trie = None,
