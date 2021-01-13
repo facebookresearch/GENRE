@@ -372,7 +372,7 @@ gold_entities = [
 ]
 ```
 
-Then we can get preditions and using `get_entity_spans_fairseq` to have spans. `guess_entities` is then a `List[List[Tuple[int, int, str]]]` containing for each document, a list of entity spans (without the document ID). We firther need to add documentIDs to `guess_entities` and remove nested list now it is a `List[Tuple[str, int, int, str]]` compatible with `gold_entities`.
+Then we can get preditions and using `get_entity_spans_fairseq` to have spans. `guess_entities` is then a `List[List[Tuple[int, int, str]]]` containing for each document, a list of entity spans (without the document ID). We further need to add documentIDs to `guess_entities` and remove the nested list to be compatible with `gold_entities`.
 
 
 ```python
