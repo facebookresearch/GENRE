@@ -6,6 +6,7 @@
 
 import html
 import re
+from collections import defaultdict
 
 from genre.entity_linking import (
     get_end_to_end_prefix_allowed_tokens_fn_fairseq,
@@ -248,6 +249,7 @@ def get_entity_spans_finalize(input_sentences, output_sentences, redirections=No
                     elif redirections is not None and entities[-1][2] in redirections:
                         entities[-1][2] = redirections[entities[-1][2]]
 
+                    entities[-1] = tuple(entities[-1])
                     status = "o"
                     j += 1
                 else:
@@ -274,3 +276,112 @@ def get_markdown(sentences, entity_spans):
         return_outputs.append(text)
 
     return return_outputs
+
+
+def strong_tp(guess_entities, gold_entities):
+    return len(gold_entities.intersection(guess_entities))
+
+
+def weak_tp(guess_entities, gold_entities):
+    tp = 0
+    for pred in guess_entities:
+        for gold in gold_entities:
+            if (
+                pred[0] == gold[0]
+                and (
+                    gold[1] <= pred[1] <= gold[1] + gold[2]
+                    or gold[1] <= pred[1] + pred[2] <= gold[1] + gold[2]
+                )
+                and pred[3] == gold[3]
+            ):
+                tp += 1
+
+    return tp
+
+
+def get_micro_precision(guess_entities, gold_entities, mode="strong"):
+    guess_entities = set(guess_entities)
+    gold_entities = set(gold_entities)
+
+    if mode == "strong":
+        return (
+            (strong_tp(guess_entities, gold_entities) / len(guess_entities))
+            if len(guess_entities)
+            else 0
+        )
+    elif mode == "weak":
+        return (
+            (weak_tp(guess_entities, gold_entities) / len(guess_entities))
+            if len(guess_entities)
+            else 0
+        )
+
+
+def get_micro_recall(guess_entities, gold_entities, mode="strong"):
+    guess_entities = set(guess_entities)
+    gold_entities = set(gold_entities)
+
+    if mode == "strong":
+        return (
+            (strong_tp(guess_entities, gold_entities) / len(gold_entities))
+            if len(gold_entities)
+            else 0
+        )
+    elif mode == "weak":
+        return (
+            (weak_tp(guess_entities, gold_entities) / len(gold_entities))
+            if len(gold_entities)
+            else 0
+        )
+
+
+def get_micro_f1(guess_entities, gold_entities, mode="strong"):
+    precision = get_micro_precision(guess_entities, gold_entities, mode)
+    recall = get_micro_recall(guess_entities, gold_entities, mode)
+    return (
+        (2 * (precision * recall) / (precision + recall)) if precision + recall else 0
+    )
+
+
+def get_doc_level_guess_gold_entities(guess_entities, gold_entities):
+    new_guess_entities = defaultdict(list)
+    for e in guess_entities:
+        new_guess_entities[e[0]].append(e)
+
+    new_gold_entities = defaultdict(list)
+    for e in gold_entities:
+        new_gold_entities[e[0]].append(e)
+
+    return new_guess_entities, new_gold_entities
+
+
+def get_macro_precision(guess_entities, gold_entities, mode="strong"):
+    guess_entities, gold_entities = get_doc_level_guess_gold_entities(
+        guess_entities, gold_entities
+    )
+    all_scores = [
+        get_micro_precision(guess_entities[k], gold_entities[k], mode)
+        for k in guess_entities
+    ]
+    return (sum(all_scores) / len(all_scores)) if len(all_scores) else 0
+
+
+def get_macro_recall(guess_entities, gold_entities, mode="strong"):
+    guess_entities, gold_entities = get_doc_level_guess_gold_entities(
+        guess_entities, gold_entities
+    )
+    all_scores = [
+        get_micro_recall(guess_entities[k], gold_entities[k], mode)
+        for k in guess_entities
+    ]
+    return (sum(all_scores) / len(all_scores)) if len(all_scores) else 0
+
+
+def get_macro_f1(guess_entities, gold_entities, mode="strong"):
+    guess_entities, gold_entities = get_doc_level_guess_gold_entities(
+        guess_entities, gold_entities
+    )
+    all_scores = [
+        get_micro_f1(guess_entities[k], gold_entities[k], mode) for k in guess_entities
+    ]
+    return (sum(all_scores) / len(all_scores)) if len(all_scores) else 0

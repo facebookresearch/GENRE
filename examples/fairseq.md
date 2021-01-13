@@ -1,12 +1,12 @@
 # GENRE for fairseq
 
-First make sure that you have [fairseq](https://github.com/pytorch/fairseq) installed. Please install it using:
-```bash
-git clone https://github.com/pytorch/fairseq
-cd fairseq
-pip install --editable ./
-```
-as described in the [fairseq repository](https://github.com/pytorch/fairseq#requirements-and-installation) since `pip install fairseq` has issues.
+First make sure that you have [fairseq](https://github.com/pytorch/fairseq) installed. Please install it using: 
+```bash 
+git clone https://github.com/pytorch/fairseq 
+cd fairseq 
+pip install --editable ./ 
+``` 
+as described in the [fairseq repository](https://github.com/pytorch/fairseq#requirements-and-installation) since `pip install fairseq` has issues. 
 
 ## Entity Disambiguation
 Download one of the pre-trained models:
@@ -318,7 +318,7 @@ get_entity_spans_fairseq(
 
 
 
-    [[[9, 8, 'Albert_Einstein'], [29, 11, 'Nobel_Prize_in_Physics']]]
+    [[(9, 8, 'Albert_Einstein'), (29, 11, 'Nobel_Prize_in_Physics')]]
 
 
 
@@ -348,6 +348,85 @@ Markdown(get_markdown(sentences, entity_spans)[0])
 
 
 
-> In 1921, [Einstein](https://en.wikipedia.org/wiki/Albert_Einstein) received a [Nobel Prize](https://en.wikipedia.org/wiki/Nobel_Prize_in_Physics).
+In 1921, [Einstein](https://en.wikipedia.org/wiki/Albert_Einstein) received a [Nobel Prize](https://en.wikipedia.org/wiki/Nobel_Prize_in_Physics).
 
 
+
+## Custom End-to-End Entity Linking evaluation
+
+We have some useful function to evaluate End-to-End Entity Linking predictions. Let's suppose we have a `Dict[str, str]` with document IDs and text as well as the gold entites spans as a `List[Tuple[str, int, int, str]]` containing documentID, start offset, length and entity title respectively.
+
+
+```python
+documents = {
+    "id_0": "In 1921, Einstein received a Nobel Prize.",
+    "id_1": "Armstrong was the first man on the Moon.",
+}
+
+gold_entities = [
+    ("id_0", 3, 4, "1921"),
+    ("id_0", 9, 8, 'Albert_Einstein'),
+    ("id_0", 29, 11, 'Nobel_Prize_in_Physics'),
+    ("id_1", 0, 9, 'Neil_Armstrong'),
+    ("id_1", 35, 4, 'Moon'),
+]
+```
+
+Then we can get preditions and using `get_entity_spans_fairseq` to have spans. `guess_entities` is then a `List[List[Tuple[int, int, str]]]` containing for each document, a list of entity spans (without the document ID). We firther need to add documentIDs to `guess_entities` and remove nested list now it is a `List[Tuple[str, int, int, str]]` compatible with `gold_entities`.
+
+
+```python
+guess_entities = get_entity_spans_fairseq(
+    model,
+    list(documents.values()),
+)
+
+guess_entities = [
+    (k,) + x
+    for k, e in zip(documents.keys(), guess_entities)
+    for x in e
+]
+```
+
+Finally, we can import all functions from `genre.utils` to compute scores.
+
+
+```python
+from genre.utils import (
+    get_micro_precision,
+    get_micro_recall,
+    get_micro_f1,
+    get_macro_precision,
+    get_macro_recall,
+    get_macro_f1,
+)
+
+micro_p = get_micro_precision(guess_entities, gold_entities)
+micro_r = get_micro_recall(guess_entities, gold_entities)
+micro_f1 = get_micro_f1(guess_entities, gold_entities)
+macro_p = get_macro_precision(guess_entities, gold_entities)
+macro_r = get_macro_recall(guess_entities, gold_entities)
+macro_f1 = get_macro_f1(guess_entities, gold_entities)
+```
+
+
+```python
+print(
+   "micro_p={:.4f} micro_r={:.4f}, micro_f1={:.4f}, macro_p={:.4f}, macro_r={:.4f}, macro_f1={:.4f}".format(
+       micro_p, micro_r, micro_f1, macro_p, macro_r, macro_f1
+   )
+)
+```
+
+    micro_p=0.2500 micro_r=0.4000, micro_f1=0.3077, macro_p=0.2500, macro_r=0.4167, macro_f1=0.3095
+
+
+
+```python
+assert 2 / 8 == micro_p
+assert 2 / 5 == micro_r
+assert 2 * (2 / 8 * 2 / 5) / (2 / 8 + 2 / 5) == micro_f1
+assert (1 / 4 + 1 / 4) / 2 == macro_p
+assert (1 / 3 + 1 / 2) / 2 == macro_r
+assert (2 * (1 / 4 * 1 / 3) / (1 / 4 + 1 / 3) + 2 * (1 / 4 * 1 / 2) / (1 / 4 + 1 / 2)) / 2 == macro_f1
+```
