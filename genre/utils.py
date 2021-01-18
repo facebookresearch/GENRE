@@ -21,7 +21,7 @@ def add_to_trie(trie, sequence):
         add_to_trie(trie._leaves[sequence[0]], sequence[1:])
 
 
-def chunk_it(seq, num):
+def chunk_it(seq, num=1):
     assert num > 0
     chunk_len = len(seq) // num
     chunks = [seq[i * chunk_len : i * chunk_len + chunk_len] for i in range(num)]
@@ -31,6 +31,18 @@ def chunk_it(seq, num):
         chunks[i].append(seq[chunk_len * num + i])
 
     return chunks
+
+
+def batch_it(seq, num=1):
+    out = []
+    for item in seq:
+        if len(out) == num:
+            yield out
+            out = []
+        out.append(item)
+
+    if len(out):
+        yield out
 
 
 def create_input(doc, max_length):
