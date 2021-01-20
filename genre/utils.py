@@ -148,6 +148,8 @@ def get_entity_spans_fairseq(
     output_sentences = model.sample(
         get_entity_spans_pre_processing(input_sentences),
         prefix_allowed_tokens_fn=prefix_allowed_tokens_fn,
+        max_len_a=1024,
+        max_len_b=1024,
     )
 
     output_sentences = get_entity_spans_post_processing(
