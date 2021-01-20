@@ -10,7 +10,8 @@ from collections import defaultdict
 
 from genre.entity_linking import (
     get_end_to_end_prefix_allowed_tokens_fn_fairseq,
-    get_end_to_end_prefix_allowed_tokens_fn_hf)
+    get_end_to_end_prefix_allowed_tokens_fn_hf,
+)
 from genre.trie import Trie
 
 
@@ -263,7 +264,9 @@ def get_entity_spans_finalize(input_sentences, output_sentences, redirections=No
                     elif redirections is not None and entities[-1][2] in redirections:
                         entities[-1][2] = redirections[entities[-1][2]]
 
-                    entities[-1] = tuple(entities[-1])
+                    if len(entities) > 0:
+                        entities[-1] = tuple(entities[-1])
+
                     status = "o"
                     j += 1
                 else:
