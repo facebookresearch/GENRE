@@ -14,6 +14,10 @@ from genre.trie import DummyTrieEntity, DummyTrieMention, Trie
 def get_end_to_end_prefix_allowed_tokens_fn_hf(
     tokenizer,
     sentences: List[str],
+    start_mention_token="{",
+    end_mention_token="}",
+    start_entity_token="[",
+    end_entity_token="]",
     mention_trie: Trie = None,
     candidates_trie: Trie = None,
     mention_to_candidates_dict: Dict[str, List[str]] = None,
@@ -26,6 +30,10 @@ def get_end_to_end_prefix_allowed_tokens_fn_hf(
         tokenizer.eos_token_id,
         len(tokenizer) - 1,
         sentences,
+        start_mention_token,
+        end_mention_token,
+        start_entity_token,
+        end_entity_token,
         mention_trie,
         candidates_trie,
         mention_to_candidates_dict,
@@ -35,6 +43,10 @@ def get_end_to_end_prefix_allowed_tokens_fn_hf(
 def get_end_to_end_prefix_allowed_tokens_fn_fairseq(
     model,
     sentences: List[str],
+    start_mention_token="{",
+    end_mention_token="}",
+    start_entity_token="[",
+    end_entity_token="]",
     mention_trie: Trie = None,
     candidates_trie: Trie = None,
     mention_to_candidates_dict: Dict[str, List[str]] = None,
@@ -47,6 +59,10 @@ def get_end_to_end_prefix_allowed_tokens_fn_fairseq(
         model.model.decoder.dictionary.eos(),
         len(model.model.decoder.dictionary),
         sentences,
+        start_mention_token,
+        end_mention_token,
+        start_entity_token,
+        end_entity_token,
         mention_trie,
         candidates_trie,
         mention_to_candidates_dict,
@@ -61,6 +77,10 @@ def _get_end_to_end_prefix_allowed_tokens_fn(
     eos_token_id,
     vocabulary_length,
     sentences: List[str],
+    start_mention_token="{",
+    end_mention_token="}",
+    start_entity_token="[",
+    end_entity_token="]",
     mention_trie: Trie = None,
     candidates_trie: Trie = None,
     mention_to_candidates_dict: Dict[str, List[str]] = None,
@@ -70,7 +90,23 @@ def _get_end_to_end_prefix_allowed_tokens_fn(
         candidates_trie is not None and mention_to_candidates_dict is not None
     ), "`candidates_trie` and `mention_to_candidates_dict` cannot be both != `None`"
 
-    codes = {k: encode_fn(" {}".format(k))[1] for k in ("{", "}", "[", "]")}
+    codes = {
+        n: encode_fn(" {}".format(c))[1]
+        for n, c in zip(
+            (
+                "start_mention_token",
+                "end_mention_token",
+                "start_entity_token",
+                "end_entity_token",
+            ),
+            (
+                start_mention_token,
+                end_mention_token,
+                start_entity_token,
+                end_entity_token,
+            ),
+        )
+    }
     codes["EOS"] = eos_token_id
 
     if mention_trie is None:
@@ -122,7 +158,15 @@ def _get_end_to_end_prefix_allowed_tokens_fn(
         return trie_out
 
     def get_status(sent):
-        c = [codes[e] for e in "{}[]"]
+        c = [
+            codes[e]
+            for e in (
+                "start_mention_token",
+                "end_mention_token",
+                "start_entity_token",
+                "end_entity_token",
+            )
+        ]
         status = sum(e in c for e in sent) % 4
 
         if status == 0:
@@ -139,7 +183,7 @@ def _get_end_to_end_prefix_allowed_tokens_fn(
             if sent_orig[pointer_end] != codes["EOS"] and sent_orig[
                 pointer_end
             ] in mention_trie.get([]):
-                return [sent_orig[pointer_end], codes["{"]]
+                return [sent_orig[pointer_end], codes["start_mention_token"]]
             else:
                 return [sent_orig[pointer_end]]
         else:
@@ -152,11 +196,14 @@ def _get_end_to_end_prefix_allowed_tokens_fn(
             if sent[i] == sent_orig[j]:
                 i += 1
                 j += 1
-            elif sent[i] == codes["{"] or sent[i] == codes["}"]:
+            elif (
+                sent[i] == codes["start_mention_token"]
+                or sent[i] == codes["end_mention_token"]
+            ):
                 i += 1
-            elif sent[i] == codes["["]:
+            elif sent[i] == codes["start_entity_token"]:
                 i += 1
-                while sent[i] != codes["]"]:
+                while sent[i] != codes["end_entity_token"]:
                     i += 1
                 i += 1
             else:
@@ -178,24 +225,24 @@ def _get_end_to_end_prefix_allowed_tokens_fn(
             if sent_orig[pointer_end] != codes["EOS"]:
                 if sent_orig[pointer_end] in ment_next:
                     if codes["EOS"] in ment_next:
-                        return [sent_orig[pointer_end], codes["}"]]
+                        return [sent_orig[pointer_end], codes["end_mention_token"]]
                     else:
                         return [sent_orig[pointer_end]]
                 elif codes["EOS"] in ment_next:
-                    return [codes["}"]]
+                    return [codes["end_mention_token"]]
                 else:
                     return []
             else:
-                return [codes["}"]]
+                return [codes["end_mention_token"]]
         else:
             return []
 
     def get_pointer_mention(sent):
         pointer_end = -1
         for i, e in enumerate(sent):
-            if e == codes["{"]:
+            if e == codes["start_mention_token"]:
                 pointer_start = i
-            elif e == codes["}"]:
+            elif e == codes["end_mention_token"]:
                 pointer_end = i
 
         return pointer_start, pointer_end
@@ -211,7 +258,14 @@ def _get_end_to_end_prefix_allowed_tokens_fn(
             elif mention_to_candidates_dict is not None:
                 candidates_trie_tmp = Trie(
                     [
-                        encode_fn(" }} [ {} ]".format(e))[1:]
+                        encode_fn(
+                            " {} {} {} {}".format(
+                                end_mention_token,
+                                start_entity_token,
+                                e,
+                                end_entity_token,
+                            )
+                        )[1:]
                         for e in mention_to_candidates_dict.get(mention, ["NIL"])
                     ]
                 )

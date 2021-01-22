@@ -36,18 +36,27 @@ class DummyTrieMention(object):
 class DummyTrieEntity(object):
     def __init__(self, return_values, codes):
         self._return_values = list(
-            set(return_values).difference(set(codes[e] for e in "{}["))
+            set(return_values).difference(
+                set(
+                    codes[e]
+                    for e in (
+                        "start_mention_token",
+                        "end_mention_token",
+                        "start_entity_token",
+                    )
+                )
+            )
         )
         self._codes = codes
 
     def get(self, indices, depth=0):
         if len(indices) == 0 and depth == 0:
-            return self._codes["}"]
+            return self._codes["end_mention_token"]
         elif len(indices) == 0 and depth == 1:
-            return self._codes["["]
+            return self._codes["start_entity_token"]
         elif len(indices) == 0:
             return self._return_values
-        elif len(indices) == 1 and indices[0] == self._codes["]"]:
+        elif len(indices) == 1 and indices[0] == self._codes["end_entity_token"]:
             return self._codes["EOS"]
         else:
             return self.get(indices[1:], depth=depth + 1)
