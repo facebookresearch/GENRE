@@ -1,5 +1,7 @@
 # GENRE (Generarive ENtity REtrieval)
 
+![](Genre-TwoColor-Light-BG.png)
+
 The GENRE system as presented in [Autoregressive Entity Retrieval](https://arxiv.org/abs/2010.00904) implemented in pytorch.
 
 ```bibtex
