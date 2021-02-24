@@ -27,7 +27,7 @@ GENRE achieves state-of-the-art results on multiple datasets.
 ## Main dependencies
 * python>=3.7
 * pytorch>=1.6
-* fairseq>=0.10 (for training -- optional for inference) **NOTE: fairseq is going though changing without backward compatibility. Install `fairseq` from source and use [this](https://github.com/pytorch/fairseq/tree/086fe1c5d1317caad090b2ff60f965d2dfa130f7) commit for reproducibilty.**
+* fairseq>=0.10 (for training -- optional for inference) **NOTE: fairseq is going though changing without backward compatibility. Install `fairseq` from source and use [this](https://github.com/nicola-decao/fairseq/tree/fixing_prefix_allowed_tokens_fn) commit for reproducibilty.**
 * transformers>=4.0 (optional for inference)
 
 ## Usage

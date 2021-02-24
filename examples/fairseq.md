@@ -1,9 +1,12 @@
 # GENRE for fairseq
 
-First make sure that you have [fairseq](https://github.com/pytorch/fairseq) installed. Please install it using: 
-```bash 
-git clone https://github.com/pytorch/fairseq 
-cd fairseq 
+First make sure that you have [fairseq](https://github.com/pytorch/fairseq) installed.
+Since `fairseq` is going through breaking changes please install it from this fork and branch
+```
+https://github.com/nicola-decao/fairseq/tree/fixing_prefix_allowed_tokens_fn
+```
+and install it using: 
+```bash
 pip install --editable ./ 
 ``` 
 as described in the [fairseq repository](https://github.com/pytorch/fairseq#requirements-and-installation) since `pip install fairseq` has issues. 
@@ -22,9 +25,16 @@ Then load the trie and define the function to apply the constraints with the ent
 
 
 ```python
+# OPTIONAL:
+import sys
+sys.path.append("../")
+```
+
+
+```python
 import pickle
 
-with open("data/kilt_titles_trie.pkl", "rb") as f:
+with open("../data/kilt_titles_trie.pkl", "rb") as f:
     trie = pickle.load(f)
 
 def prefix_allowed_tokens_fn(batch_id, sent):
@@ -36,10 +46,16 @@ Then, load the model
 
 ```python
 from genre import GENRE
-model = GENRE.from_pretrained("models/fairseq_entity_disambiguation_aidayago").eval()
+model = GENRE.from_pretrained("../models/fairseq_entity_disambiguation_aidayago").eval()
 ```
 
 and simply use `.sample` to make predictions constraining using `prefix_allowed_tokens_fn`
+
+
+```python
+def prefix_allowed_tokens_fn(batch_id, sent):
+    return trie.get(sent.tolist())
+```
 
 
 ```python
@@ -73,7 +89,7 @@ Then, load the model
 
 
 ```python
-model = GENRE.from_pretrained("models/fairseq_wikipage_retrieval").eval()
+model = GENRE.from_pretrained("../models/fairseq_wikipage_retrieval").eval()
 ```
 
 and simply use `.sample` to make predictions constraining using `prefix_allowed_tokens_fn`
@@ -112,7 +128,7 @@ Then, load the model
 
 
 ```python
-model = GENRE.from_pretrained("models/fairseq_e2e_entity_linking_aidayago").eval()
+model = GENRE.from_pretrained("../models/fairseq_e2e_entity_linking_aidayago").eval()
 ```
 
 and 
@@ -407,10 +423,7 @@ micro_f1 = get_micro_f1(guess_entities, gold_entities)
 macro_p = get_macro_precision(guess_entities, gold_entities)
 macro_r = get_macro_recall(guess_entities, gold_entities)
 macro_f1 = get_macro_f1(guess_entities, gold_entities)
-```
 
-
-```python
 print(
    "micro_p={:.4f} micro_r={:.4f}, micro_f1={:.4f}, macro_p={:.4f}, macro_r={:.4f}, macro_f1={:.4f}".format(
        micro_p, micro_r, micro_f1, macro_p, macro_r, macro_f1

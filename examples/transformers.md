@@ -1,4 +1,4 @@
-# GENRE for fairseq
+# GENRE for transformers
 
 First make sure that you have [transformers](https://github.com/huggingface/transformers) >=4.0.0 installed. 
 
@@ -17,9 +17,16 @@ Then load the trie and define the function to apply the constraints with the ent
 
 
 ```python
+# OPTIONAL:
+import sys
+sys.path.append("../")
+```
+
+
+```python
 import pickle
 
-with open("data/kilt_titles_trie.pkl", "rb") as f:
+with open("../data/kilt_titles_trie.pkl", "rb") as f:
     trie = pickle.load(f)
 
 def prefix_allowed_tokens_fn(batch_id, sent):
@@ -31,8 +38,8 @@ Then, load the model
 
 ```python
 from transformers import BartForConditionalGeneration, BartTokenizer
-tokenizer = BartTokenizer.from_pretrained("models/hf_entity_disambiguation_aidayago")
-model = BartForConditionalGeneration.from_pretrained("models/hf_entity_disambiguation_aidayago").eval()
+tokenizer = BartTokenizer.from_pretrained("../models/hf_entity_disambiguation_aidayago")
+model = BartForConditionalGeneration.from_pretrained("../models/hf_entity_disambiguation_aidayago").eval()
 ```
 
 and simply use `.generate` to make predictions constraining using `prefix_allowed_tokens_fn`
@@ -83,8 +90,8 @@ Then, load the model
 
 
 ```python
-tokenizer = BartTokenizer.from_pretrained("models/hf_wikipage_retrieval")
-model = BartForConditionalGeneration.from_pretrained("models/hf_wikipage_retrieval").eval()
+tokenizer = BartTokenizer.from_pretrained("../models/hf_wikipage_retrieval")
+model = BartForConditionalGeneration.from_pretrained("../models/hf_wikipage_retrieval").eval()
 ```
 
 and simply use `.sample` to make predictions constraining using `prefix_allowed_tokens_fn`
@@ -132,8 +139,8 @@ Then, load the model
 
 
 ```python
-tokenizer = BartTokenizer.from_pretrained("models/hf_e2e_entity_linking_wiki_abs")
-model = BartForConditionalGeneration.from_pretrained("models/hf_e2e_entity_linking_wiki_abs").eval()
+tokenizer = BartTokenizer.from_pretrained("../models/hf_e2e_entity_linking_wiki_abs")
+model = BartForConditionalGeneration.from_pretrained("../models/hf_e2e_entity_linking_wiki_abs").eval()
 ```
 
 and 
