@@ -25,6 +25,7 @@ class Trie(object):
 
     def add(self, sequence: List[int]):
         Trie._add_to_trie(sequence, self.trie_dict)
+        self.len += 1
 
     def get(self, prefix_sequence: List[int]):
         return Trie._get_from_trie(
@@ -35,7 +36,7 @@ class Trie(object):
     def load_from_dict(trie_dict):
         trie = Trie()
         trie.trie_dict = trie_dict
-        self.len = sum(1 for _ in trie)
+        trie.len = sum(1 for _ in trie)
         return trie
 
     @staticmethod
