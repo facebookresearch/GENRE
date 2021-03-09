@@ -6,6 +6,7 @@
 
 from typing import List, Dict
 
+
 class Trie(object):
     def __init__(self, sequences: List[List[int]] = []):
         self.trie_dict = {}
@@ -29,7 +30,7 @@ class Trie(object):
         return Trie._get_from_trie(
             prefix_sequence, self.trie_dict, self.append_trie, self.bos_token_id
         )
-        
+
     @staticmethod
     def load_from_dict(trie_dict):
         trie = Trie()
@@ -69,19 +70,22 @@ class Trie(object):
                 return append_trie.get(prefix_sequence)
             else:
                 return []
-            
+
     def __iter__(self):
         def _traverse(prefix_sequence, trie_dict):
             if trie_dict:
                 for next_token in trie_dict:
-                    yield from _traverse(prefix_sequence + [next_token], trie_dict[next_token])
+                    yield from _traverse(
+                        prefix_sequence + [next_token], trie_dict[next_token]
+                    )
             else:
                 yield prefix_sequence
+
         return _traverse([], self.trie_dict)
-    
+
     def __len__(self):
         return self.len
-    
+
     def __getitem__(self, value):
         return self.get(value)
 

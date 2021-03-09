@@ -10,7 +10,8 @@ from collections import defaultdict
 
 from genre.entity_linking import (
     get_end_to_end_prefix_allowed_tokens_fn_fairseq,
-    get_end_to_end_prefix_allowed_tokens_fn_hf)
+    get_end_to_end_prefix_allowed_tokens_fn_hf,
+)
 
 
 def batch_it(seq, num=1):

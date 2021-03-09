@@ -17,7 +17,6 @@ logger = logging.getLogger(__name__)
 
 
 class GENREHubInterface(BARTHubInterface):
-
     def sample(
         self, sentences: List[str], beam: int = 5, verbose: bool = False, **kwargs
     ) -> List[str]:
@@ -32,27 +31,27 @@ class GENREHubInterface(BARTHubInterface):
             ]
             for hypos in batched_hypos
         ]
-    
+
     def generate(
         self,
         tokenized_sentences: List[torch.LongTensor],
         *args,
         inference_step_args=None,
         skip_invalid_size_inputs=False,
-        **kwargs
+        **kwargs,
     ) -> List[List[Dict[str, torch.Tensor]]]:
         inference_step_args = inference_step_args or {}
         if "prefix_tokens" in inference_step_args:
             raise NotImplementedError("prefix generation not implemented for BART")
         res = []
         for batch in self._build_batches(tokenized_sentences, skip_invalid_size_inputs):
-            src_tokens = batch['net_input']['src_tokens']
+            src_tokens = batch["net_input"]["src_tokens"]
             results = super(BARTHubInterface, self).generate(
                 src_tokens,
                 *args,
                 inference_step_args=inference_step_args,
                 skip_invalid_size_inputs=skip_invalid_size_inputs,
-                **kwargs
+                **kwargs,
             )
             res.extend(results)
         return res
