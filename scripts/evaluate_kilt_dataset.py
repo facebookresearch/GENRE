@@ -18,7 +18,7 @@ from tqdm.auto import tqdm
 
 from genre import GENRE
 from genre.trie import Trie
-from genre.utils import chunk_it, create_input
+from genre.utils import batch_it, create_input
 
 
 def evaluate_kilt_dataset(
@@ -40,7 +40,7 @@ def evaluate_kilt_dataset(
     gold = []
     pred = []
 
-    iter_ = tqdm(chunk_it(dataset, len(dataset) // batch_size), desc="Evaluating")
+    iter_ = tqdm(batch_it(dataset, len(dataset) // batch_size), desc="Evaluating")
     for docs in iter_:
 
         if not free_generation:

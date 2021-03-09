@@ -11,26 +11,6 @@ from collections import defaultdict
 from genre.entity_linking import (
     get_end_to_end_prefix_allowed_tokens_fn_fairseq,
     get_end_to_end_prefix_allowed_tokens_fn_hf)
-from genre.trie import Trie
-
-
-def add_to_trie(trie, sequence):
-    if sequence != []:
-        if sequence[0] not in trie._leaves:
-            trie._leaves[sequence[0]] = Trie([])
-        add_to_trie(trie._leaves[sequence[0]], sequence[1:])
-
-
-def chunk_it(seq, num=1):
-    assert num > 0
-    chunk_len = len(seq) // num
-    chunks = [seq[i * chunk_len : i * chunk_len + chunk_len] for i in range(num)]
-
-    diff = len(seq) - chunk_len * num
-    for i in range(diff):
-        chunks[i].append(seq[chunk_len * num + i])
-
-    return chunks
 
 
 def batch_it(seq, num=1):
