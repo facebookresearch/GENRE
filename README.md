@@ -28,7 +28,7 @@ GENRE achieves state-of-the-art results on multiple datasets.
 * python>=3.7
 * pytorch>=1.6
 * fairseq>=0.10 (for training -- optional for inference) **NOTE: fairseq is going though changing without backward compatibility. Install `fairseq` from source and use [this](https://github.com/nicola-decao/fairseq/tree/fixing_prefix_allowed_tokens_fn) commit for reproducibilty. See [here](https://github.com/pytorch/fairseq/pull/3276) for the current PR that should fix `fairseq/master`.**
-* transformers>=4.0 (optional for inference)
+* transformers>=4.2 (optional for inference)
 
 ## Usage
 
@@ -117,7 +117,7 @@ Then, to tokenize and binarize them as expected from `fairseq` use
 note that this requires to have `fairseq` source code downloaded in the same folder as the `genre` repository (see [here](https://github.com/facebookresearch/GENRE/blob/main/scripts/preprocess_fairseq.sh#L14)).
 
 ### Trie from KILT Wikipedia titles
-We also release the BPE prefix tree (trie) from KILT Wikipedia titles ([kilt_titles_trie.pkl](http://dl.fbaipublicfiles.com/GENRE/kilt_titles_trie.pkl)) that is based on the 2019/08/01 Wikipedia dump, downloadable in its raw format [here](http://dl.fbaipublicfiles.com/BLINK/enwiki-pages-articles.xml.bz2).
+We also release the BPE prefix tree (trie) from KILT Wikipedia titles ([kilt_titles_trie_dict.pkl](http://dl.fbaipublicfiles.com/GENRE/kilt_titles_trie_dict.pkl)) that is based on the 2019/08/01 Wikipedia dump, downloadable in its raw format [here](http://dl.fbaipublicfiles.com/BLINK/enwiki-pages-articles.xml.bz2).
 The trie contains ~5M titles and it is used to generate entites for all the KILT experiments.
 
 ## Troubleshooting

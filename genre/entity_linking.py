@@ -12,7 +12,7 @@ from genre.trie import DummyTrieEntity, DummyTrieMention, Trie
 
 
 def get_end_to_end_prefix_allowed_tokens_fn_hf(
-    tokenizer,
+    model,
     sentences: List[str],
     start_mention_token="{",
     end_mention_token="}",
@@ -23,12 +23,12 @@ def get_end_to_end_prefix_allowed_tokens_fn_hf(
     mention_to_candidates_dict: Dict[str, List[str]] = None,
 ):
     return _get_end_to_end_prefix_allowed_tokens_fn(
-        lambda x: tokenizer.encode(x),
-        lambda x: tokenizer.decode(torch.tensor(x)),
-        tokenizer.bos_token_id,
-        tokenizer.pad_token_id,
-        tokenizer.eos_token_id,
-        len(tokenizer) - 1,
+        lambda x: model.tokenizer.encode(x),
+        lambda x: model.tokenizer.decode(torch.tensor(x)),
+        model.tokenizer.bos_token_id,
+        model.tokenizer.pad_token_id,
+        model.tokenizer.eos_token_id,
+        len(model.tokenizer) - 1,
         sentences,
         start_mention_token,
         end_mention_token,

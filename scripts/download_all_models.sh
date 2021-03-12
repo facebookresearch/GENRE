@@ -40,3 +40,11 @@ tar -zxvf fairseq_wikipage_retrieval.tar.gz
 tar -zxvf hf_wikipage_retrieval.tar.gz
 
 cd ..
+
+mkdir data
+cd data
+
+### KILT prefix tree
+wget http://dl.fbaipublicfiles.com/GENRE/kilt_titles_trie_dict.pkl
+
+cd ..

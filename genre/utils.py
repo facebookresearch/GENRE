@@ -144,7 +144,6 @@ def get_entity_spans_fairseq(
 
 def get_entity_spans_hf(
     model,
-    tokenizer,
     input_sentences,
     mention_trie=None,
     candidates_trie=None,
@@ -154,20 +153,20 @@ def get_entity_spans_hf(
 
     input_args = {
         k: v.to(model.device)
-        for k, v in tokenizer.batch_encode_plus(
+        for k, v in model.tokenizer.batch_encode_plus(
             get_entity_spans_pre_processing(input_sentences), return_tensors="pt"
         ).items()
     }
 
     prefix_allowed_tokens_fn = get_end_to_end_prefix_allowed_tokens_fn_hf(
-        tokenizer,
+        model,
         get_entity_spans_pre_processing(input_sentences),
         mention_trie=mention_trie,
         candidates_trie=candidates_trie,
         mention_to_candidates_dict=mention_to_candidates_dict,
     )
 
-    output_sentences = tokenizer.batch_decode(
+    output_sentences = model.tokenizer.batch_decode(
         model.generate(
             **input_args,
             min_length=0,
