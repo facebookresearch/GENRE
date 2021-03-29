@@ -1,3 +1,9 @@
+# Copyright (c) Facebook, Inc. and its affiliates.
+# All rights reserved.
+#
+# This source code is licensed under the license found in the
+# LICENSE file in the root directory of this source tree.
+
 import argparse
 import logging
 import os
@@ -14,12 +20,12 @@ if __name__ == "__main__":
     parser.add_argument(
         "--base_wikipedia",
         type=str,
-        default="/checkpoint/ndecao/wikipedia",
+        help="Base folder with Wikipedia data.",
     )
     parser.add_argument(
         "--lang",
         type=str,
-        default="it",
+        help="Language ID.",
     )
     parser.add_argument(
         "--rank",
@@ -57,10 +63,10 @@ if __name__ == "__main__":
         )
     ]
 
-    #     if args.rank < min(len(filenames), 32):
-    #         filenames = chunk_it(filenames, min(len(filenames), 32))[args.rank]
-    #     else:
-    #         quit()
+    if args.rank < min(len(filenames), 32):
+        filenames = chunk_it(filenames, min(len(filenames), 32))[args.rank]
+    else:
+        quit()
 
     num_threads = 32
     with ThreadPoolExecutor(max_workers=num_threads) as executor:

@@ -1,12 +1,17 @@
+# Copyright (c) Facebook, Inc. and its affiliates.
+# All rights reserved.
+#
+# This source code is licensed under the license found in the
+# LICENSE file in the root directory of this source tree.
+
 import argparse
 import logging
 import os
 import pickle
 import re
 
-import pandas
-
 import jsonlines
+import pandas
 from mgenre.utils import chunk_it, get_wikidata_ids
 from tqdm.auto import tqdm, trange
 
@@ -17,17 +22,15 @@ if __name__ == "__main__":
     parser.add_argument(
         "--input_dir",
         type=str,
-        default="/checkpoint/ndecao/xlwikifier-wikidata/data",
     )
     parser.add_argument(
         "--output_dir",
         type=str,
-        default="/checkpoint/ndecao/TR2016",
     )
     parser.add_argument(
         "--base_wikidata",
         type=str,
-        default="/checkpoint/ndecao/wikidata",
+        help="Base folder with Wikidata data.",
     )
     parser.add_argument(
         "-d",

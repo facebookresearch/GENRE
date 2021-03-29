@@ -9,7 +9,8 @@
 
 DATASET_PATH=$1
 MODEL_PATH=$2
-echo "Processing $1"
+
+echo "Processing ${DATASET}"
 
 cd ../fairseq
 

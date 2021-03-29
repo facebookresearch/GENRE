@@ -16,45 +16,16 @@ import unicodedata
 from collections import defaultdict
 from copy import deepcopy
 
+import jsonlines
 import numpy as np
 import requests
-
-import jsonlines
 from hanziconv import HanziConv
-from mgenre import mGENRE
-from mgenre.utils import add_to_trie, batch_it, create_input, get_from_trie_dict
 from prettytable import PrettyTable
 from tqdm.auto import tqdm
 
-
-# class ServerDict:
-#     def __init__(self, name):
-#         self.name = name
-
-#     def get(self, key, value=None):
-#         return json.loads(
-#             requests.post(
-#                 "http://100.97.69.169:5555",
-#                 json={"dict": self.name, "action": "get", "key": key, "value": value},
-#             ).content
-#         )
-
-#     def __getitem__(self, key):
-#         return json.loads(
-#             requests.post(
-#                 "http://100.97.69.169:5555",
-#                 json={"dict": self.name, "action": "__getitem__", "key": key},
-#             ).content
-#         )
-
-
-#     def get_from_trie_dict(indices):
-#         return json.loads(
-#             requests.post(
-#                 "http://100.97.69.169:5555",
-#                 json={"indices": indices, "action": "get_from_trie_dict"}
-#             ).content
-#         )
+from genre.fairseq_model import mGENRE
+from genre.trie import Trie
+from genre.utils import batch_it, create_input
 
 
 def evaluate_kilt_dataset(
@@ -160,15 +131,14 @@ def evaluate_kilt_dataset(
                                 else "{} >> {}".format(lang, title)
                             ).tolist()[1:]
                             for cand in candidates
-                            #                             if cand in wikidataID2lang_title
                             for lang, title in wikidataID2lang_title.get(cand, [])
                             if lang in allowed_langs
                         ]
 
                     if batch_bpes:
-                        batch_trie[i] = {}
+                        batch_trie[i] = Trie()
                         for e in batch_bpes:
-                            add_to_trie(e, batch_trie[i])
+                            batch_trie[i].add(e)
 
                     else:
                         batch_trie[i] = trie
@@ -179,7 +149,7 @@ def evaluate_kilt_dataset(
             def prefix_allowed_tokens_fn(batch_id, sent):
                 return [
                     e
-                    for e in get_from_trie_dict(sent.tolist(), batch_trie[batch_id])
+                    for e in batch_trie[batch_id].get(sent.tolist())
                     if e < len(model.task.target_dictionary)
                 ]
 
@@ -330,27 +300,27 @@ if __name__ == "__main__":
     parser.add_argument(
         "--lang_title2wikidataID",
         type=str,
-        default="/checkpoint/fabiopetroni/mGENRE/wikidata/lang_title2wikidataID-normalized.pkl",
+        help="Location of the (lang, title) to wikidataID dictionary",
     )
     parser.add_argument(
         "--wikidataID2lang_title",
         type=str,
-        default="/checkpoint/fabiopetroni/mGENRE/wikidata/wikidataID2lang_title-normalized.pkl",
+        help="Location of the wikidataID to (lang, title) dictionary",
     )
     parser.add_argument(
         "--canonical_lang_title2wikidataID",
         type=str,
-        default="/checkpoint/fabiopetroni/mGENRE/wikidata/canonical_lang_title2wikidataID.pkl",
+        help="Location of the canonical (lang, title) to wikidataID dictionary",
     )
     parser.add_argument(
         "--wikidataID2canonical_lang_title",
         type=str,
-        default="/checkpoint/fabiopetroni/mGENRE/wikidata/wikidataID2canonical_lang_title.pkl",
+        help="Location of the wikidataID to dictionary",
     )
     parser.add_argument(
         "--wikidataID2freebaseID",
         type=str,
-        default="/checkpoint/fabiopetroni/mGENRE/wikidata/wikidataID2freebaseID.pkl",
+        help="Location of the wikidataID to freebaseID dictionary",
     )
     parser.add_argument(
         "--candidates",
@@ -359,17 +329,17 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--candidates_lowercase",
-        help="Whether to use provided canidates",
+        help="Whether to use provided canidates in lowercase",
         action="store_true",
     )
     parser.add_argument(
         "--only_en_candidates",
-        help="Whether to use provided canidates",
+        help="Whether to use provided canidates in English only",
         action="store_true",
     )
     parser.add_argument(
         "--only_freebase_candidates",
-        help="Whether to use provided canidates",
+        help="Whether to only use candidates with a freebase ID",
         action="store_true",
     )
     parser.add_argument(
@@ -380,7 +350,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--mention2wikidataID",
         type=str,
-        default="/checkpoint/fabiopetroni/mGENRE/wikidata/mention2wikidataID_with_titles_label_alias.pkl",
+        help="Location of the mention to wikidataID dictionary",
     )
     parser.add_argument(
         "--order",
@@ -388,19 +358,15 @@ if __name__ == "__main__":
         choices=["title_lang", "lang_title"],
     )
     parser.add_argument(
-        "--server_dict",
-        help="Whether to use provided canidates",
-        action="store_true",
-    )
-    parser.add_argument(
         "--canonical",
-        help="Whether to use provided canidates",
+        help="Whether to use canonical representation",
         action="store_true",
     )
     parser.add_argument(
         "--allowed_langs",
         type=str,
         default="af|am|ar|as|az|be|bg|bm|bn|br|bs|ca|cs|cy|da|de|el|en|eo|es|et|eu|fa|ff|fi|fr|fy|ga|gd|gl|gn|gu|ha|he|hi|hr|ht|hu|hy|id|ig|is|it|ja|jv|ka|kg|kk|km|kn|ko|ku|ky|la|lg|ln|lo|lt|lv|mg|mk|ml|mn|mr|ms|my|ne|nl|no|om|or|pa|pl|ps|pt|qu|ro|ru|sa|sd|si|sk|sl|so|sq|sr|ss|su|sv|sw|ta|te|th|ti|tl|tn|tr|uk|ur|uz|vi|wo|xh|yo|zh",
+        help="Pipe (|) separated list of allowed language ID to use",
     )
     parser.add_argument(
         "-d",
@@ -418,11 +384,6 @@ if __name__ == "__main__":
         action="store_const",
         dest="loglevel",
         const=logging.INFO,
-    )
-    parser.add_argument(
-        "--test",
-        help="Run tests (no evaluation)",
-        action="store_true",
     )
 
     args, _ = parser.parse_known_args()
@@ -455,7 +416,7 @@ if __name__ == "__main__":
             checkpoint_file=args.checkpoint_file,
             bpe="sentencepiece",
             layernorm_embedding=True,
-            sentencepiece_model="/private/home/ndecao/mGENRE/models/mbart.cc100/spm_256000.model",
+            sentencepiece_model=os.path.join(args.model_path, "spm_256000.model"),
         )
         .eval()
         .to(args.device)
@@ -465,7 +426,7 @@ if __name__ == "__main__":
         logging.info("Loading Trie from {}".format(args.trie))
 
         with open(args.trie, "rb") as f:
-            trie = pickle.load(f)
+            trie = Trie.load_from_dict(pickle.load(f))
 
     else:
         trie = None
@@ -497,9 +458,7 @@ if __name__ == "__main__":
                 wikidataID2canonical_lang_title = pickle.load(f)
 
     else:
-        if args.server_dict:
-            lang_title2wikidataID = ServerDict("lang_title2wikidataID")
-        elif args.lang_title2wikidataID is not None:
+        if args.lang_title2wikidataID is not None:
             logging.info(
                 "Loading <lang, title> to wikidataID map from {}".format(
                     args.lang_title2wikidataID
@@ -508,9 +467,7 @@ if __name__ == "__main__":
             with open(args.lang_title2wikidataID, "rb") as f:
                 lang_title2wikidataID = pickle.load(f)
 
-        if args.server_dict:
-            wikidataID2lang_title = ServerDict("wikidataID2lang_title")
-        elif args.wikidataID2lang_title is not None:
+        if args.wikidataID2lang_title is not None:
             logging.info(
                 "Loading wikidataID to <lang, title> map from {}".format(
                     args.wikidataID2lang_title
@@ -520,9 +477,7 @@ if __name__ == "__main__":
                 wikidataID2lang_title = pickle.load(f)
 
     if args.only_freebase_candidates:
-        if args.server_dict:
-            wikidataID2freebaseID = ServerDict("wikidataID2freebaseID")
-        elif args.wikidataID2freebaseID is not None:
+        if args.wikidataID2freebaseID is not None:
             logging.info(
                 "Loading wikidataID to freebaseID from {}".format(
                     args.wikidataID2freebaseID
@@ -532,9 +487,7 @@ if __name__ == "__main__":
                 wikidataID2freebaseID = pickle.load(f)
 
     if args.candidates:
-        if args.server_dict:
-            mention2wikidataID = ServerDict("mention2wikidataID")
-        elif args.mention2wikidataID is not None:
+        if args.mention2wikidataID is not None:
             logging.info(
                 "Loading mention to wikidataID map from {}".format(
                     args.mention2wikidataID

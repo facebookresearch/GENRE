@@ -1,3 +1,9 @@
+# Copyright (c) Facebook, Inc. and its affiliates.
+# All rights reserved.
+#
+# This source code is licensed under the license found in the
+# LICENSE file in the root directory of this source tree.
+
 import argparse
 import logging
 import os
@@ -6,9 +12,8 @@ import unicodedata
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-import numpy as np
-
 import jsonlines
+import numpy as np
 from hanziconv import HanziConv
 from mgenre.utils import create_input
 from tqdm.auto import tqdm, trange
@@ -20,26 +25,28 @@ if __name__ == "__main__":
     parser.add_argument(
         "--base_wikipedia",
         type=str,
-        default="/checkpoint/ndecao/wikipedia",
+        help="Base folder with Wikipedia data.",
     )
     parser.add_argument(
         "--base_wikidata",
         type=str,
-        default="/checkpoint/ndecao/wikidata",
+        help="Base folder with Wikidata data.",
     )
     parser.add_argument(
         "--langs",
         type=str,
-        default="it|en",
+        help="Pipe (|) separated list of language ID to process.",
     )
     parser.add_argument(
         "--max_count",
         type=int,
         default=10e20,
+        help="Max number of datapoints to process.",
     )
     parser.add_argument(
         "--abstracts",
         action="store_true",
+        help="Process abstracts only.",
     )
     parser.add_argument(
         "-d",
@@ -127,10 +134,10 @@ if __name__ == "__main__":
             wikidataID2lang_priority,
         ),
         (
-            "mention2wikidataID_small.pkl",
-            "wikidataID2mention_small.pkl",
-            "wikidataID2lang_small.pkl",
-            "wikidataID2lang_priority_small.pkl",
+            "mention2wikidataID.pkl",
+            "wikidataID2mention_.pkl",
+            "wikidataID2lang.pkl",
+            "wikidataID2lang_priority.pkl",
         ),
     ):
 

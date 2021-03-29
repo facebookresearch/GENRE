@@ -1,3 +1,9 @@
+# Copyright (c) Facebook, Inc. and its affiliates.
+# All rights reserved.
+#
+# This source code is licensed under the license found in the
+# LICENSE file in the root directory of this source tree.
+
 import argparse
 import logging
 import os
@@ -36,17 +42,17 @@ if __name__ == "__main__":
     parser.add_argument(
         "--base_wikipedia",
         type=str,
-        default="/checkpoint/ndecao/wikipedia",
+        help="Base folder with Wikipedia data.",
     )
     parser.add_argument(
         "--base_wikidata",
         type=str,
-        default="/checkpoint/ndecao/wikidata",
+        help="Base folder with Wikidata data.",
     )
     parser.add_argument(
         "--langs",
         type=str,
-        default="it|en",
+        help="Pipe (|) separated list of language ID to process.",
     )
     parser.add_argument(
         "-d",

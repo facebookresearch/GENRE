@@ -1,3 +1,9 @@
+# Copyright (c) Facebook, Inc. and its affiliates.
+# All rights reserved.
+#
+# This source code is licensed under the license found in the
+# LICENSE file in the root directory of this source tree.
+
 import argparse
 import csv
 import json
@@ -43,7 +49,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--base_wikidata",
         type=str,
-        default="/checkpoint/ndecao/wikidata",
+        help="Base folder with Wikidata data.",
     )
     parser.add_argument(
         "--normalized",
@@ -79,7 +85,7 @@ if __name__ == "__main__":
             os.path.join(args.base_wikidata, "wikidata-all-compressed.jsonl"), "w"
         ) as fo:
 
-            iter_ = tqdm(fi, total=100000000)
+            iter_ = tqdm(fi)
             for i, line in enumerate(iter_):
                 iter_.set_postfix(wikidata=wikidata, refresh=False)
 
@@ -147,7 +153,7 @@ if __name__ == "__main__":
             "w",
         ) as fo:
 
-            for item in tqdm(fi, total=20277987):
+            for item in tqdm(fi):
                 item["sitelinks"] = {
                     lang: mgenre.decode(mgenre.encode(title))
                     for lang, title in item["sitelinks"].items()
@@ -185,7 +191,7 @@ if __name__ == "__main__":
         logging.info("Processing {}".format(filename))
         with jsonlines.open(filename, "r") as f:
 
-            for item in tqdm(f, total=20277987):
+            for item in tqdm(f):
                 for lang, title in item["sitelinks"].items():
                     lang_title2wikidataID[(lang, title)].add(item["id"])
                     wikidataID2lang_title[item["id"]].add((lang, title))
@@ -268,11 +274,9 @@ if __name__ == "__main__":
         wikidataID2freebaseID = defaultdict(list)
         freebaseID2wikidataID = defaultdict(list)
 
-        with open(
-            os.path.join("/checkpoint/ndecao/wikidata", "wikidata-all.json"), "r"
-        ) as fi:
+        with open(os.path.join(args.base_wikidata, "wikidata-all.json"), "r") as fi:
 
-            iter_ = tqdm(fi, total=100000000)
+            iter_ = tqdm(fi)
             for i, line in enumerate(iter_):
                 line = line.strip()
                 if line[-1] == ",":

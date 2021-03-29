@@ -75,13 +75,11 @@ if __name__ == "__main__":
         "--guess_path",
         type=str,
         help="Path to guess datasets",
-        default="outputs/titles_lang_abstract_mewsli_1M/mewsli-9",
     )
     parser.add_argument(
         "--gold_path",
         type=str,
         help="Path to gold datasets",
-        default="/checkpoint/ndecao/mewsli-9",
     )
     parser.add_argument(
         "-d",

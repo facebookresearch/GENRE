@@ -22,20 +22,19 @@ if __name__ == "__main__":
             "titles",
             "titles_lang_trie_append",
             "lang_titles_trie_append",
-            "titles_lang_trie_tackbp",
-            "lang_titles_trie_tackbp",
             "canonical",
         ],
     )
     parser.add_argument(
         "--base_wikidata",
         type=str,
-        default="/checkpoint/ndecao/wikidata",
+        help="Base folder with Wikidata data.",
     )
     parser.add_argument(
         "--allowed_langs",
         type=str,
         default="af|am|ar|as|az|be|bg|bm|bn|br|bs|ca|cs|cy|da|de|el|en|eo|es|et|eu|fa|ff|fi|fr|fy|ga|gd|gl|gn|gu|ha|he|hi|hr|ht|hu|hy|id|ig|is|it|ja|jv|ka|kg|kk|km|kn|ko|ku|ky|la|lg|ln|lo|lt|lv|mg|mk|ml|mn|mr|ms|my|ne|nl|no|om|or|pa|pl|ps|pt|qu|ro|ru|sa|sd|si|sk|sl|so|sq|sr|ss|su|sv|sw|ta|te|th|ti|tl|tn|tr|uk|ur|uz|vi|wo|xh|yo|zh",
+        help="Pipe (|) separated list of allowed language ID to use.",
     )
     parser.add_argument(
         "-d",
@@ -79,7 +78,6 @@ if __name__ == "__main__":
             lang_title2wikidataID = pickle.load(f)
 
         lang_titles2bpes = {
-            #             (lang, title): [2] + mgenre.encode(title)[1:].tolist()
             (lang, title): mgenre.encode(title).tolist()
             for lang, title in tqdm(lang_title2wikidataID.keys())
         }
@@ -88,46 +86,6 @@ if __name__ == "__main__":
         logging.info("Saving {}".format(filename))
         with open(filename, "wb") as f:
             pickle.dump(lang_titles2bpes, f)
-    elif (
-        args.action == "titles_lang_trie_tackbp"
-        or args.action == "lang_titles_trie_tackbp"
-    ):
-        args.allowed_langs.add("en")
-        filename = os.path.join(args.base_wikidata, "lang_titles2bpes-normalized.pkl")
-        logging.info("Loading {}".format(filename))
-        with open(filename, "rb") as f:
-            lang_titles2bpes = pickle.load(f)
-
-        lang2titles2bpes = defaultdict(dict)
-        lang_codes = {}
-        if args.action == "titles_lang_trie_append":
-            for (lang, title), bpes in tqdm(lang_titles2bpes.items()):
-                if lang not in lang_codes:
-                    lang_codes[lang] = mgenre.encode(" >> {}".format(lang)).tolist()
-                lang2titles2bpes[lang][title] = [2] + bpes[1:-1] + lang_codes[lang][1:]
-        elif args.action == "lang_titles_trie_append":
-            for (lang, title), bpes in tqdm(lang_titles2bpes.items()):
-                if lang not in lang_codes:
-                    lang_codes[lang] = mgenre.encode("{} >>".format(lang)).tolist()
-                lang2titles2bpes[lang][title] = [2] + lang_codes[lang][1:-1] + bpes[1:]
-
-        trie = {}
-        for lang in sorted(args.allowed_langs):
-            for sequence in tqdm(lang2titles2bpes[lang].values(), desc=lang):
-                add_to_trie(sequence, trie)
-
-        if args.action == "titles_lang_trie_append":
-            filename = os.path.join(
-                args.base_wikidata, "titles_lang_tackbp_{}_trie.pkl".format()
-            )
-        elif args.action == "lang_titles_trie_append":
-            filename = os.path.join(
-                args.base_wikidata, "lang_titles_tackbp_{}_trie.pkl".format()
-            )
-
-        logging.info("Saving {}".format(filename))
-        with open(filename, "wb") as f:
-            pickle.dump(trie, f)
 
     elif (
         args.action == "titles_lang_trie_append"

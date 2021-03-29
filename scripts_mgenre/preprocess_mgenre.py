@@ -1,3 +1,9 @@
+# Copyright (c) Facebook, Inc. and its affiliates.
+# All rights reserved.
+#
+# This source code is licensed under the license found in the
+# LICENSE file in the root directory of this source tree.
+
 import argparse
 import logging
 import os
@@ -5,9 +11,8 @@ import pickle
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-import numpy as np
-
 import jsonlines
+import numpy as np
 from mgenre.utils import create_input
 from tqdm.auto import tqdm, trange
 
@@ -23,40 +28,50 @@ if __name__ == "__main__":
             "lang_titles",
             "canonical_title",
             "marginal",
-        ],  # "titles_lang_v2"],
+        ],
+        help="How to process the target.",
     )
     parser.add_argument(
         "--base_wikipedia",
         type=str,
-        default="/checkpoint/ndecao/wikipedia",
+        help="Base folder with Wikipedia data.",
     )
     parser.add_argument(
         "--base_wikidata",
         type=str,
-        default="/checkpoint/ndecao/wikidata",
+        help="Base folder with Wikidata data.",
+    )
+    parser.add_argument(
+        "--base_tr2016",
+        type=str,
+        help="Base folder with TR2016 data.",
     )
     parser.add_argument(
         "--langs",
         type=str,
-        default="en",
+        help="Pipe (|) separated list of language ID to process.",
     )
     parser.add_argument(
         "--allowed_langs",
         type=str,
-        default="en",
+        default="af|am|ar|as|az|be|bg|bm|bn|br|bs|ca|cs|cy|da|de|el|en|eo|es|et|eu|fa|ff|fi|fr|fy|ga|gd|gl|gn|gu|ha|he|hi|hr|ht|hu|hy|id|ig|is|it|ja|jv|ka|kg|kk|km|kn|ko|ku|ky|la|lg|ln|lo|lt|lv|mg|mk|ml|mn|mr|ms|my|ne|nl|no|om|or|pa|pl|ps|pt|qu|ro|ru|sa|sd|si|sk|sl|so|sq|sr|ss|su|sv|sw|ta|te|th|ti|tl|tn|tr|uk|ur|uz|vi|wo|xh|yo|zh",
+        help="Pipe (|) separated list of allowed language ID to use.",
     )
     parser.add_argument(
         "--random_n",
         type=int,
         default=1,
+        help="Number or random entity titles to use when the one in the source is unavailable",
     )
     parser.add_argument(
         "--abstracts",
         action="store_true",
+        help="Process abstracts only.",
     )
     parser.add_argument(
         "--target_switching",
         action="store_true",
+        help="Enables target switching.",
     )
     parser.add_argument(
         "--target_switching_prob",
@@ -66,6 +81,12 @@ if __name__ == "__main__":
     parser.add_argument(
         "--monolingual",
         action="store_true",
+        help="Only monolingual targets.",
+    )
+    parser.add_argument(
+        "--filter_tr2016",
+        action="store_true",
+        help="Filters out TR2016 mention-entities.",
     )
     parser.add_argument(
         "-d",
@@ -109,6 +130,18 @@ if __name__ == "__main__":
         logging.info("Loading {}".format(filename))
         with open(filename, "rb") as f:
             wikidataID2lang_title = pickle.load(f)
+
+    tr2016_data = []
+    for fname in os.listdir(args.base_tr2016):
+        if "test" in fname:
+            with jsonlines.open(os.path.join(args.base_tr2016, fname)) as f:
+                data += list(f)
+
+    tr2016_mentions = {
+        (d["meta"]["mention"], wikidataID)
+        for d in data
+        for wikidataID in d["output"][0]["answer"]
+    }
 
     for lang in args.langs.split("|"):
         filename = os.path.join(args.base_wikipedia, "{0}/{0}wiki.pkl".format(lang))
@@ -186,6 +219,11 @@ if __name__ == "__main__":
                         ].strip()
 
                         if mention == "":
+                            continue
+                        if (
+                            args.filter_tr2016
+                            and (mention, anchor["wikidata_ids"][0]) in tr2016_mentions
+                        ):
                             continue
 
                         input_ = (

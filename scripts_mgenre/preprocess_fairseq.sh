@@ -1,19 +1,15 @@
 #!/bin/bash
 
-# DATASET=$1
-# MODEL=/private/home/ndecao/mGENRE/models/mbart.cc100/spm_256000.model
+# Copyright (c) Facebook, Inc. and its affiliates.
+# All rights reserved.
+#
+# This source code is licensed under the license found in the
+# LICENSE file in the root directory of this source tree.
 
-# echo "Processing ${DATASET}"
-# LANG="target"
-# for SPLIT in train dev; do
-#     python scripts/preprocess_sentencepiece.py --m ${MODEL} \
-#     --inputs ${DATASET}/${SPLIT}.${LANG} \
-#     --outputs ${DATASET}/${SPLIT}.spm.${LANG} \
-#     --workers 40
-# done
 
 DATASET=$1
-MODEL=/private/home/ndecao/mGENRE/models/mbart.cc100/spm_256000.model
+MODEL=$2
+DICT=$3
 
 echo "Processing ${DATASET}"
 
@@ -34,6 +30,6 @@ fairseq-preprocess \
   --destdir ${DATASET}/bin \
   --thresholdtgt 0 \
   --thresholdsrc 0 \
-  --srcdict /private/home/ndecao/mGENRE/models/mbart.cc100/dict.txt \
-  --tgtdict /private/home/ndecao/mGENRE/models/mbart.cc100/dict.txt \
+  --srcdict ${DICT} \
+  --tgtdict ${DICT} \
   --workers 40

@@ -1,3 +1,9 @@
+# Copyright (c) Facebook, Inc. and its affiliates.
+# All rights reserved.
+#
+# This source code is licensed under the license found in the
+# LICENSE file in the root directory of this source tree.
+
 import argparse
 import logging
 import os
@@ -5,10 +11,9 @@ import pickle
 import re
 from collections import defaultdict
 
+import jsonlines
 import numpy as np
 import pandas
-
-import jsonlines
 from mgenre.utils import chunk_it, get_wikidata_ids
 from tqdm.auto import tqdm, trange
 
@@ -21,14 +26,15 @@ if __name__ == "__main__":
         type=str,
     )
     parser.add_argument(
-        "--base_wikipedia",
+        "--base_wikinews",
         type=str,
-        default="/checkpoint/ndecao/wikinews",
+        help="Base folder with Wikipedia data.",
     )
     parser.add_argument(
         "--langs",
         type=str,
         default="ar|bg|bs|ca|cs|de|el|en|eo|es|fa|fi|fr|he|hu|it|ja|ko|nl|no|pl|pt|ro|ru|sd|sq|sr|sv|ta|th|tr|uk|zh",
+        help="Pipe (|) separated list of language ID to use.",
     )
     parser.add_argument(
         "-d",
@@ -53,7 +59,7 @@ if __name__ == "__main__":
     logging.basicConfig(level=args.loglevel)
 
     for lang in args.langs.split("|"):
-        filename = os.path.join(args.base_wikipedia, lang, "{}wiki.pkl".format(lang))
+        filename = os.path.join(args.base_wikinews, lang, "{}wiki.pkl".format(lang))
         logging.info("Loading {}".format(filename))
         with open(filename, "rb") as f:
             wiki = pickle.load(f)

@@ -22,3 +22,19 @@
 * `run_bart_slurm.py`: seq2seq training script
 * `run_training.sh`: launches traing on fair cluster
 * `wikipedia_all_for_TR2016.py`: generates sharded training data removing entities seen in TR2016
+
+        hyperparam(
+            "--lr", 1e-04, save_dir_key=lambda val: f"lr{val}"
+            
+                grid += [
+        hyperparam("--bpe", "sentencepiece", save_dir_key=lambda x: "spm"),
+        hyperparam(
+            "--sentencepiece-model",
+            "/checkpoint/fabiopetroni/mGENRE/models/mbart.cc100_1.2B/spm_256000.model",
+        ),
+    ]
+
+    grid += [
+        hyperparam("--encoder-normalize-before", save_dir_key=lambda val: "enb"),
+        hyperparam("--decoder-normalize-before", save_dir_key=lambda val: "dnb"),
+            
