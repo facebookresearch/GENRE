@@ -40,11 +40,9 @@ sys.path.append("../")
 import pickle
 from genre.trie import Trie
 
+# load the prefix tree (trie)
 with open("../data/kilt_titles_trie_dict.pkl", "rb") as f:
     trie = Trie.load_from_dict(pickle.load(f))
-
-def prefix_allowed_tokens_fn(batch_id, sent):
-    return trie.get(sent.tolist())
 ```
 
 Then, load the model
@@ -64,22 +62,22 @@ and simply use `.sample` to make predictions constraining using `prefix_allowed_
 
 
 ```python
-sentences = ["[START_ENT] Armstrong [END_ENT] was the first man on the Moon."]
+sentences = ["Einstein was a [START_ENT] German [END_ENT] physicist."]
 
 model.sample(
     sentences,
-    prefix_allowed_tokens_fn=prefix_allowed_tokens_fn,
+    prefix_allowed_tokens_fn=lambda batch_id, sent: trie.get(sent.tolist()),
 )
 ```
 
 
 
 
-    [[{'text': 'Neil Armstrong', 'logprob': tensor(-0.1443)},
-      {'text': 'William Armstrong', 'logprob': tensor(-1.4650)},
-      {'text': 'Scott Armstrong', 'logprob': tensor(-1.7311)},
-      {'text': 'Arthur Armstrong', 'logprob': tensor(-1.7356)},
-      {'text': 'Rob Armstrong', 'logprob': tensor(-1.7426)}]]
+    [[{'text': 'Germany', 'logprob': tensor(-0.1856)},
+      {'text': 'Germans', 'logprob': tensor(-0.5461)},
+      {'text': 'German Empire', 'logprob': tensor(-2.1858)},
+      {'text': 'Nazi Germany', 'logprob': tensor(-2.4682)},
+      {'text': 'France', 'logprob': tensor(-4.2070)}]]
 
 
 
@@ -105,23 +103,33 @@ and simply use `.sample` to make predictions constraining using `prefix_allowed_
 
 
 ```python
-sentences = ["Armstrong was the first man on the Moon."]
+sentences = ["Einstein was a German physicist."]
 
 model.sample(
     sentences,
-    prefix_allowed_tokens_fn=prefix_allowed_tokens_fn,
+    prefix_allowed_tokens_fn=lambda batch_id, sent: trie.get(sent.tolist()),
 )
 ```
 
 
 
 
-    [[{'text': 'Neil Armstrong', 'logprob': tensor(-0.1593)},
-      {'text': 'Apollo 11', 'logprob': tensor(-0.7673)},
-      {'text': 'Astronaut', 'logprob': tensor(-1.1418)},
-      {'text': 'Buzz Aldrin', 'logprob': tensor(-1.4446)},
-      {'text': 'Apollo 17', 'logprob': tensor(-1.4594)}]]
+    [[{'text': 'Albert Einstein', 'logprob': tensor(-0.0708)},
+      {'text': 'Werner Bruschke', 'logprob': tensor(-1.5357)},
+      {'text': 'Werner von Habsburg', 'logprob': tensor(-1.8696)},
+      {'text': 'Werner von Moltke', 'logprob': tensor(-2.2318)},
+      {'text': 'Werner von Eichstedt', 'logprob': tensor(-3.0177)}]]
 
+
+
+
+```python
+!pip install bs4
+```
+
+    Requirement already satisfied: bs4 in /home/ndecao/.anaconda3/envs/nlp37/lib/python3.7/site-packages (0.0.1)
+    Requirement already satisfied: beautifulsoup4 in /home/ndecao/.anaconda3/envs/nlp37/lib/python3.7/site-packages (from bs4) (4.9.3)
+    Requirement already satisfied: soupsieve>1.2 in /home/ndecao/.anaconda3/envs/nlp37/lib/python3.7/site-packages (from beautifulsoup4->bs4) (2.2.1)
 
 
 ## End-to-End Entity Linking
