@@ -16,7 +16,7 @@ from kilt.eval_retrieval import compute
 from prettytable import PrettyTable
 from tqdm.auto import tqdm
 
-from genre import GENRE
+from genre.fairseq_model import GENRE
 from genre.trie import Trie
 from genre.utils import batch_it, create_input
 
@@ -40,8 +40,8 @@ def evaluate_kilt_dataset(
     gold = []
     pred = []
 
-    iter_ = tqdm(batch_it(dataset, len(dataset) // batch_size), desc="Evaluating")
-    for docs in iter_:
+    iter_ = tqdm(dataset, desc="Evaluating")
+    for docs in batch_it(iter_, batch_size):
 
         if not free_generation:
             batch_trie = {
@@ -66,7 +66,15 @@ def evaluate_kilt_dataset(
                 return batch_trie[batch_id].get(sent.tolist())
 
         outputs = model.sample(
-            [create_input(doc, max_len_a) for doc in docs],
+            [
+                create_input(
+                    doc,
+                    max_len_a,
+                    start_delimiter="[START_ENT]",
+                    end_delimiter="[END_ENT]",
+                )
+                for doc in docs
+            ],
             beam=beams,
             max_len_b=max_len_b,
             prefix_allowed_tokens_fn=None
@@ -91,7 +99,7 @@ def evaluate_kilt_dataset(
                         {
                             "wikipedia_id": title2id.get(prov["text"], None),
                             "title": prov["text"],
-                            "score": prov["logprob"].item(),
+                            "score": prov["score"].item(),
                         }
                         for prov in out
                     ],

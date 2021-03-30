@@ -79,33 +79,8 @@ class GENREHubInterface(BARTHubInterface):
 
         return outputs
 
-    def generate(
-        self,
-        tokenized_sentences: List[torch.LongTensor],
-        *args,
-        inference_step_args=None,
-        skip_invalid_size_inputs=False,
-        **kwargs,
-    ) -> List[List[Dict[str, torch.Tensor]]]:
-        inference_step_args = inference_step_args or {}
-        if "prefix_tokens" in inference_step_args:
-            raise NotImplementedError("prefix generation not implemented for BART")
-        res = []
-        for batch in self._build_batches(tokenized_sentences, skip_invalid_size_inputs):
-            src_tokens = batch["net_input"]["src_tokens"]
-            results = super(BARTHubInterface, self).generate(
-                src_tokens,
-                *args,
-                inference_step_args=inference_step_args,
-                skip_invalid_size_inputs=skip_invalid_size_inputs,
-                **kwargs,
-            )
-            for id, hypos in zip(batch["id"].tolist(), results):
-                res.append((id, hypos))
-
-        # sort output to match input order
-        res = [hypos for _, hypos in sorted(res, key=lambda x: x[0])]
-        return res
+    def generate(self, *args, **kwargs) -> List[List[Dict[str, torch.Tensor]]]:
+        return super(BARTHubInterface, self).generate(*args, **kwargs)
 
 
 class GENRE(BARTModel):

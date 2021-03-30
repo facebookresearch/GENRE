@@ -42,9 +42,7 @@ def batch_it(seq, num=1):
         yield out
 
 
-def create_input(
-    doc, max_length, start_delimiter="[START_ENT]", end_delimiter="[END_ENT]"
-):
+def create_input(doc, max_length, start_delimiter, end_delimiter):
     if "meta" in doc and all(
         e in doc["meta"] for e in ("left_context", "mention", "right_context")
     ):
