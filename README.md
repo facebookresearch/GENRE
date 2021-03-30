@@ -137,7 +137,7 @@ For more complex esamples see:
 
 For **GENRE** use [this](https://github.com/facebookresearch/GENRE/blob/main/scripts/download_all_models.sh) script to download all of them or see [here](https://github.com/facebookresearch/GENRE/blob/main/examples_genre) the list of all individual models for each task and for both pytorch fairseq and huggingface transformers. See the [example](https://github.com/facebookresearch/GENRE/blob/main/examples_genre) on how to download additional optional files like the prefix tree (trie) for KILT Wikipedia.
 
-For **mGENRE** we only have a model available [here](https://dl.fbaipublicfiles.com/GENRE/fairseq_multilingual_entity_disambiguation.tar.gz). See the [example](https://github.com/facebookresearch/GENRE/blob/main/examples_genre) on how to download additional optional files like the prefix tree (trie) for Wikipedia in all languages and the mapping between titles and Wikidata IDs.
+For **mGENRE** we only have a model available [here](https://dl.fbaipublicfiles.com/GENRE/fairseq_multilingual_entity_disambiguation.tar.gz). See the [example](https://github.com/facebookresearch/GENRE/blob/main/examples_mgenre) on how to download additional optional files like the prefix tree (trie) for Wikipedia in all languages and the mapping between titles and Wikidata IDs.
 
 ## Troubleshooting
 If the module cannot be found, preface the python command with `PYTHONPATH=.`
