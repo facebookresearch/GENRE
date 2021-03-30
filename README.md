@@ -1,9 +1,9 @@
 ![](Genre-TwoColor-Light-BG.png)
 
-The GENRE (Generarive ENtity REtrieval) system as presented in [Autoregressive Entity Retrieval](https://arxiv.org/abs/2010.00904) implemented in pytorch.
+The GENRE (Generative ENtity REtrieval) system as presented in [Autoregressive Entity Retrieval](https://arxiv.org/abs/2010.00904) implemented in pytorch.
 
 ```bibtex
-@inproceedings{de2020autoregressive,
+@inproceedings{decao2020autoregressive,
   title={Autoregressive Entity Retrieval},
   author={Nicola De Cao and Gautier Izacard and Sebastian Riedel and Fabio Petroni},
   booktitle={International Conference on Learning Representations},
@@ -12,13 +12,27 @@ The GENRE (Generarive ENtity REtrieval) system as presented in [Autoregressive E
 }
 ```
 
-**Please consider citing our work if you use code from this repository.**
+![](mGenre-TwoColor-Light-BG.png)
 
-In a nutshell, GENRE uses a sequence-to-sequence approach to entity retrieval (e.g., linking), based on fine-tuned [BART](https://arxiv.org/abs/1910.13461) architecture. GENRE performs retrieval generating the unique entity name conditioned on the input text using constrained beam search to only generate valid identifiers. Here an example of generation for Wikipedia page retrieval for open-domain question answering:
+The mGENRE system as presented in [Multilingual Autoregressive Entity Linking](https://arxiv.org/abs/2103.12528)
+
+```bibtex
+@inproceedings{decao2020multilingual,
+  title={Multilingual Autoregressive Entity Linking}, 
+  author={Nicola De Cao and Ledell Wu and Kashyap Popat and Mikel Artetxe and Naman Goyal and Mikhail Plekhanov and Luke Zettlemoyer and Nicola Cancedda and Sebastian Riedel and Fabio Petroni},
+  booktitle={arXiv pre-print 2103.12528},
+  url={https://arxiv.org/abs/2103.12528},
+  year={2021},
+}
+```
+
+**Please consider citing our works if you use code from this repository.**
+
+In a nutshell, (m)GENRE uses a sequence-to-sequence approach to entity retrieval (e.g., linking), based on fine-tuned [BART](https://arxiv.org/abs/1910.13461) architecture or [mBART](https://arxiv.org/abs/2001.08210) (for multilingual). (m)GENRE performs retrieval generating the unique entity name conditioned on the input text using constrained beam search to only generate valid identifiers. Here an example of generation for Wikipedia page retrieval for open-domain question answering:
 
 ![](GENRE-animation-QA.gif)
 
-For end-to-end entity linking GENRE re-generates the input text annoted with a markup:
+For end-to-end entity linking GENRE re-generates the input text annotated with a markup:
 
 ![](GENRE-animation-EL.gif)
 
@@ -27,98 +41,99 @@ GENRE achieves state-of-the-art results on multiple datasets.
 ## Main dependencies
 * python>=3.7
 * pytorch>=1.6
-* fairseq>=0.10 (for training -- optional for inference) **NOTE: fairseq is going though changing without backward compatibility. Install `fairseq` from source and use [this](https://github.com/nicola-decao/fairseq/tree/fixing_prefix_allowed_tokens_fn) commit for reproducibilty. See [here](https://github.com/pytorch/fairseq/pull/3276) for the current PR that should fix `fairseq/master`.**
-* transformers>=4.2 (optional for inference)
+* fairseq>=0.10 (optional for training GENRE) **NOTE: fairseq is going though changing without backward compatibility. Install `fairseq` from source and use [this](https://github.com/nicola-decao/fairseq/tree/fixing_prefix_allowed_tokens_fn) commit for reproducibilty. See [here](https://github.com/pytorch/fairseq/pull/3276) for the current PR that should fix `fairseq/master`.**
+* transformers>=4.2 (optional for inference of GENRE)
 
 ## Usage
 
-See examples on how to use GENRE for both pytorch fairseq and huggingface transformers:
-* For [pytorch/fairseq](https://github.com/facebookresearch/GENRE/blob/main/examples/fairseq.md)
-* For [huggingface/transformers](https://github.com/facebookresearch/GENRE/blob/main/examples/transformers.md)
-
-Generally, after importing and loading the model, you would generate predictions (in this example for Entity Disambiguation) with a simple call like:
+After importing and loading the model and a prefix tree (trie), you would generate predictions (in this example for Entity Disambiguation) with a simple call like:
 
 ```python
+import pickle
+from genre.trie import Trie
+from genre.fairseq_model import GENRE
+
+# load the prefix tree (trie)
+with open("../data/kilt_titles_trie_dict.pkl", "rb") as f:
+    trie = Trie.load_from_dict(pickle.load(f))
+
+# load the model
+model = GENRE.from_pretrained("models/fairseq_entity_disambiguation_aidayago").eval()
+
+# generate Wikipedia titles
 model.sample(
-    sentences=[
-        "[START_ENT] Armstrong [END_ENT] was the first man on the Moon."
-    ]
+    sentences=["Einstein was a [START_ENT] German [END_ENT] physicist."],
+    prefix_allowed_tokens_fn=lambda batch_id, sent: trie.get(sent.tolist()),
 )
 ```
 
 
 
 
-    [[{'text': 'Neil Armstrong', 'logprob': tensor(-0.1443)},
-      {'text': 'William Armstrong', 'logprob': tensor(-1.4650)},
-      {'text': 'Scott Armstrong', 'logprob': tensor(-1.7311)},
-      {'text': 'Arthur Armstrong', 'logprob': tensor(-1.7356)},
-      {'text': 'Rob Armstrong', 'logprob': tensor(-1.7426)}]]
+    [[{'text': 'Germany', 'score': tensor(-0.1856)},
+      {'text': 'Germans', 'score': tensor(-0.5461)},
+      {'text': 'German Empire', 'score': tensor(-2.1858)},
+      {'text': 'Nazi Germany', 'score': tensor(-2.4682)},
+      {'text': 'France', 'score': tensor(-4.2070)}]]
 
 
+Making predictions with mGENRE is very similar, but we additionally need to map `(title, language_ID)` to Wikidata IDs and (optionally) marginalize over predictions of the same entity:
 
+```python
+import pickle
+from genre.trie import Trie, MarisaTrie
+from genre.fairseq_model import mGENRE
 
+with open("../data/lang_title2wikidataID-normalized_with_redirect.pkl", "rb") as f:
+    lang_title2wikidataID = pickle.load(f)
 
-**NOTE: we used fairseq for all experiments in the paper. The huggingface/transformers models are obtained with a conversion script similar to [this](https://github.com/huggingface/transformers/blob/master/src/transformers/models/bart/convert_bart_original_pytorch_checkpoint_to_pytorch.py). Therefore results might differ.**
+# memory efficient prefix tree (trie) implemented with `marisa_trie`
+with open("../data/titles_lang_all105_marisa_trie_with_redirect.pkl", "rb") as f:
+    trie = pickle.load(f)
 
-## Models
+# generate Wikipedia titles and language IDs
+model = mGENRE.from_pretrained("../models/fairseq_multilingual_entity_disambiguation").eval()
 
-Use the link above to download models in `.tar.gz` format and then `tar -zxvf <FILENAME>` do uncompress.  As an alternative use [this](https://github.com/facebookresearch/GENRE/blob/main/scripts/download_all_models.sh) script to dowload all of them.
-
-### Entity Disambiguation
-| Training Dataset | [pytorch / fairseq](https://github.com/pytorch/fairseq)   | [huggingface / transformers](https://github.com/huggingface/transformers) |
-| -------- | -------- | ----------- |
-| [BLINK](https://github.com/facebookresearch/BLINK) | [fairseq_entity_disambiguation_blink](http://dl.fbaipublicfiles.com/GENRE/fairseq_entity_disambiguation_blink.tar.gz)|[hf_entity_disambiguation_blink](http://dl.fbaipublicfiles.com/GENRE/hf_entity_disambiguation_blink.tar.gz)|
-| BLINK + AidaYago2 | [fairseq_entity_disambiguation_aidayago](http://dl.fbaipublicfiles.com/GENRE/fairseq_entity_disambiguation_aidayago.tar.gz)|[hf_entity_disambiguation_aidayago](http://dl.fbaipublicfiles.com/GENRE/hf_entity_disambiguation_aidayago.tar.gz)|
-
-### End-to-End Entity Linking
-| Training Dataset | [pytorch / fairseq](https://github.com/pytorch/fairseq)   | [huggingface / transformers](https://github.com/huggingface/transformers) |
-| -------- | -------- | ----------- |
-| WIKIPEDIA | [fairseq_e2e_entity_linking_wiki_abs](http://dl.fbaipublicfiles.com/GENRE/fairseq_e2e_entity_linking_wiki_abs.tar.gz)|[hf_e2e_entity_linking_wiki_abs](http://dl.fbaipublicfiles.com/GENRE/hf_e2e_entity_linking_wiki_abs.tar.gz)|
-| WIKIPEDIA + AidaYago2 | [fairseq_e2e_entity_linking_aidayago](http://dl.fbaipublicfiles.com/GENRE/fairseq_e2e_entity_linking_aidayago.tar.gz)|[hf_e2e_entity_linking_aidayago](http://dl.fbaipublicfiles.com/GENRE/hf_e2e_entity_linking_aidayago.tar.gz)|
-
-### Document Retieval
-| Training Dataset | [pytorch / fairseq](https://github.com/pytorch/fairseq)   | [huggingface / transformers](https://github.com/huggingface/transformers) |
-| -------- | -------- | ----------- |
-| [KILT](https://github.com/facebookresearch/KILT) | [fairseq_wikipage_retrieval](http://dl.fbaipublicfiles.com/GENRE/fairseq_wikipage_retrieval.tar.gz)|[hf_wikipage_retrieval](http://dl.fbaipublicfiles.com/GENRE/hf_wikipage_retrieval.tar.gz)|
-
-See [here](https://github.com/facebookresearch/GENRE/blob/main/examples) examples to load the models and make inference.
-
-## Dataset
-
-Use the link above to download datasets. As an alternative use [this](https://github.com/facebookresearch/GENRE/blob/main/scripts/download_all_datasets.sh) script to dowload all of them. These dataset (except BLINK data) are a pre-processed version of [Phong Le and Ivan Titov (2018)](https://arxiv.org/pdf/1804.10637.pdf) data availabe [here](https://github.com/lephong/mulrel-nel). BLINK data taken from [here](https://github.com/facebookresearch/KILT).
-
-### Entity Disambiguation (train / dev)
-- [BLINK train](http://dl.fbaipublicfiles.com/KILT/blink-train-kilt.jsonl) (9,000,000 lines, 11GiB)
-- [BLINK dev](http://dl.fbaipublicfiles.com/KILT/blink-dev-kilt.jsonl) (10,000 lines, 13MiB)
-- [AIDA-YAGO2 train](http://dl.fbaipublicfiles.com/GENRE/aida-train-kilt.jsonl) (18,448 lines, 56MiB)
-- [AIDA-YAGO2 dev](http://dl.fbaipublicfiles.com/GENRE/aida-dev-kilt.jsonl) (4,791 lines, 15MiB)
-
-### Entity Disambiguation (test)
-- [ACE2004](http://dl.fbaipublicfiles.com/GENRE/ace2004-test-kilt.jsonl) (257 lines, 850KiB)
-- [AQUAINT](http://dl.fbaipublicfiles.com/GENRE/aquaint-test-kilt.jsonl) (727 lines, 2.0MiB)
-- [AIDA-YAGO2](http://dl.fbaipublicfiles.com/GENRE/aida-test-kilt.jsonl) (4,485 lines, 14MiB)
-- [MSNBC](http://dl.fbaipublicfiles.com/GENRE/msnbc-test-kilt.jsonl) (656 lines, 1.9MiB)
-- [WNED-CWEB](http://dl.fbaipublicfiles.com/GENRE/clueweb-test-kilt.jsonl) (11,154 lines, 38MiB)
-- [WNED-WIKI](http://dl.fbaipublicfiles.com/GENRE/wiki-test-kilt.jsonl) (6,821 lines, 19MiB)
-
-### Document Retieval
-- KILT for the these datasets please follow the download instruction on the [KILT](https://github.com/facebookresearch/KILT) repository.
-
-### Pre-processing
-To pre-process a KILT formatted dataset into source and target files as expected from `fairseq` use 
-```bash
-python scripts/convert_kilt_to_fairseq.py $INPUT_FILENAME $OUTPUT_FOLDER
+model.sample(
+    sentences=["[START] Einstein [END] era un fisico tedesco."],
+    # Italian for "[START] Einstein [END] was a German physicist."
+    prefix_allowed_tokens_fn=lambda batch_id, sent: [
+        e for e in trie.get(sent.tolist()) if e < len(model.task.target_dictionary)
+    ],
+    text_to_id=lambda x: max(lang_title2wikidataID[tuple(reversed(x.split(" >> ")))], key=lambda y: int(y[1:])),
+    marginalize=True,
+)
 ```
-Then, to tokenize and binarize them as expected from `fairseq` use 
-```bash
-./preprocess_fairseq.sh $DATASET_PATH $MODEL_PATH
-```
-note that this requires to have `fairseq` source code downloaded in the same folder as the `genre` repository (see [here](https://github.com/facebookresearch/GENRE/blob/main/scripts/preprocess_fairseq.sh#L14)).
 
-### Trie from KILT Wikipedia titles
-We also release the BPE prefix tree (trie) from KILT Wikipedia titles ([kilt_titles_trie_dict.pkl](http://dl.fbaipublicfiles.com/GENRE/kilt_titles_trie_dict.pkl)) that is based on the 2019/08/01 Wikipedia dump, downloadable in its raw format [here](http://dl.fbaipublicfiles.com/BLINK/enwiki-pages-articles.xml.bz2).
-The trie contains ~5M titles and it is used to generate entites for all the KILT experiments.
+
+
+
+    [[{'id': 'Q937',
+       'texts': ['Albert Einstein >> it',
+        'Alberto Einstein >> it',
+        'Einstein >> it'],
+       'scores': tensor([-0.0808, -1.4619, -1.5765]),
+       'score': tensor(-0.0884)},
+      {'id': 'Q60197',
+       'texts': ['Alfred Einstein >> it'],
+       'scores': tensor([-1.4337]),
+       'score': tensor(-3.2058)},
+      {'id': 'Q15990626',
+       'texts': ['Albert Einstein (disambiguation) >> en'],
+       'scores': tensor([-1.0998]),
+       'score': tensor(-3.6478)}]]
+
+
+For more complex esamples see:
+* how to use GENRE for both pytorch fairseq and huggingface transformers [here](https://github.com/facebookresearch/GENRE/blob/main/examples_genre);
+* how to use mGENRE [here](https://github.com/facebookresearch/GENRE/blob/main/examples_mgenre).
+
+
+## Models & Datasets
+
+For **GENRE** use [this](https://github.com/facebookresearch/GENRE/blob/main/scripts/download_all_models.sh) script to download all of them or see [here](https://github.com/facebookresearch/GENRE/blob/main/examples_genre) the list of all individual models for each task and for both pytorch fairseq and huggingface transformers. See the [example](https://github.com/facebookresearch/GENRE/blob/main/examples_genre) on how to download additional optional files like the prefix tree (trie) for KILT Wikipedia.
+
+For **mGENRE** we only have a model available [here](https://dl.fbaipublicfiles.com/GENRE/fairseq_multilingual_entity_disambiguation.tar.gz). See the [example](https://github.com/facebookresearch/GENRE/blob/main/examples_genre) on how to download additional optional files like the prefix tree (trie) for Wikipedia in all languages and the mapping between titles and Wikidata IDs.
 
 ## Troubleshooting
 If the module cannot be found, preface the python command with `PYTHONPATH=.`

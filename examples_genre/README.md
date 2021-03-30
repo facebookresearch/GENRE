@@ -16,7 +16,48 @@ as described in the [fairseq repository](https://github.com/pytorch/fairseq#requ
 First make sure that you have [transformers](https://github.com/huggingface/transformers) >=4.2.0 installed. 
 **NOTE: we used fairseq for all experiments in the paper. The huggingface/transformers models are obtained with a conversion script similar to [this](https://github.com/huggingface/transformers/blob/master/src/transformers/models/bart/convert_bart_original_pytorch_checkpoint_to_pytorch.py).**
 
-## Entity Disambiguation
+<hr>
+
+# Datasets
+
+Use the links below to download datasets. As an alternative use [this](https://github.com/facebookresearch/GENRE/blob/main/scripts/download_all_datasets.sh) script to dowload all of them. These dataset (except BLINK data) are a pre-processed version of [Phong Le and Ivan Titov (2018)](https://arxiv.org/pdf/1804.10637.pdf) data availabe [here](https://github.com/lephong/mulrel-nel). BLINK data taken from [here](https://github.com/facebookresearch/KILT).
+
+## Entity Disambiguation (train / dev)
+- [BLINK train](http://dl.fbaipublicfiles.com/KILT/blink-train-kilt.jsonl) (9,000,000 lines, 11GiB)
+- [BLINK dev](http://dl.fbaipublicfiles.com/KILT/blink-dev-kilt.jsonl) (10,000 lines, 13MiB)
+- [AIDA-YAGO2 train](http://dl.fbaipublicfiles.com/GENRE/aida-train-kilt.jsonl) (18,448 lines, 56MiB)
+- [AIDA-YAGO2 dev](http://dl.fbaipublicfiles.com/GENRE/aida-dev-kilt.jsonl) (4,791 lines, 15MiB)
+
+## Entity Disambiguation (test)
+- [ACE2004](http://dl.fbaipublicfiles.com/GENRE/ace2004-test-kilt.jsonl) (257 lines, 850KiB)
+- [AQUAINT](http://dl.fbaipublicfiles.com/GENRE/aquaint-test-kilt.jsonl) (727 lines, 2.0MiB)
+- [AIDA-YAGO2](http://dl.fbaipublicfiles.com/GENRE/aida-test-kilt.jsonl) (4,485 lines, 14MiB)
+- [MSNBC](http://dl.fbaipublicfiles.com/GENRE/msnbc-test-kilt.jsonl) (656 lines, 1.9MiB)
+- [WNED-CWEB](http://dl.fbaipublicfiles.com/GENRE/clueweb-test-kilt.jsonl) (11,154 lines, 38MiB)
+- [WNED-WIKI](http://dl.fbaipublicfiles.com/GENRE/wiki-test-kilt.jsonl) (6,821 lines, 19MiB)
+
+## Document Retieval
+- KILT for the these datasets please follow the download instruction on the [KILT](https://github.com/facebookresearch/KILT) repository.
+
+## Pre-processing
+To pre-process a KILT formatted dataset into source and target files as expected from `fairseq` use 
+```bash
+python scripts/convert_kilt_to_fairseq.py $INPUT_FILENAME $OUTPUT_FOLDER
+```
+Then, to tokenize and binarize them as expected from `fairseq` use 
+```bash
+./preprocess_fairseq.sh $DATASET_PATH $MODEL_PATH
+```
+note that this requires to have `fairseq` source code downloaded in the same folder as the `genre` repository (see [here](https://github.com/facebookresearch/GENRE/blob/main/scripts/preprocess_fairseq.sh#L14)).
+
+## Trie from KILT Wikipedia titles
+
+We also release the BPE prefix tree (trie) from KILT Wikipedia titles ([kilt_titles_trie_dict.pkl](http://dl.fbaipublicfiles.com/GENRE/kilt_titles_trie_dict.pkl)) that is based on the 2019/08/01 Wikipedia dump, downloadable in its raw format [here](http://dl.fbaipublicfiles.com/BLINK/enwiki-pages-articles.xml.bz2).
+The trie contains ~5M titles and it is used to generate entites for all the KILT experiments.
+
+<hr>
+
+# Example: Entity Disambiguation
 Download one of the pre-trained models:
 
 | Training Dataset | [pytorch / fairseq](https://github.com/pytorch/fairseq)   | [huggingface / transformers](https://github.com/huggingface/transformers) |
@@ -73,15 +114,15 @@ model.sample(
 
 
 
-    [[{'text': 'Germany', 'logprob': tensor(-0.1856)},
-      {'text': 'Germans', 'logprob': tensor(-0.5461)},
-      {'text': 'German Empire', 'logprob': tensor(-2.1858)},
-      {'text': 'Nazi Germany', 'logprob': tensor(-2.4682)},
-      {'text': 'France', 'logprob': tensor(-4.2070)}]]
+    [[{'text': 'Germany', 'score': tensor(-0.1856)},
+      {'text': 'Germans', 'score': tensor(-0.5461)},
+      {'text': 'German Empire', 'score': tensor(-2.1858)},
+      {'text': 'Nazi Germany', 'score': tensor(-2.4682)},
+      {'text': 'France', 'score': tensor(-4.2070)}]]
 
 
 
-## Document Retieval
+# Example: Document Retieval
 Download one of the pre-trained models:
 
 | Training Dataset | [pytorch / fairseq](https://github.com/pytorch/fairseq)   | [huggingface / transformers](https://github.com/huggingface/transformers) |
@@ -114,25 +155,15 @@ model.sample(
 
 
 
-    [[{'text': 'Albert Einstein', 'logprob': tensor(-0.0708)},
-      {'text': 'Werner Bruschke', 'logprob': tensor(-1.5357)},
-      {'text': 'Werner von Habsburg', 'logprob': tensor(-1.8696)},
-      {'text': 'Werner von Moltke', 'logprob': tensor(-2.2318)},
-      {'text': 'Werner von Eichstedt', 'logprob': tensor(-3.0177)}]]
+    [[{'text': 'Albert Einstein', 'score': tensor(-0.0708)},
+      {'text': 'Werner Bruschke', 'score': tensor(-1.5357)},
+      {'text': 'Werner von Habsburg', 'score': tensor(-1.8696)},
+      {'text': 'Werner von Moltke', 'score': tensor(-2.2318)},
+      {'text': 'Werner von Eichstedt', 'score': tensor(-3.0177)}]]
 
 
 
-
-```python
-!pip install bs4
-```
-
-    Requirement already satisfied: bs4 in /home/ndecao/.anaconda3/envs/nlp37/lib/python3.7/site-packages (0.0.1)
-    Requirement already satisfied: beautifulsoup4 in /home/ndecao/.anaconda3/envs/nlp37/lib/python3.7/site-packages (from bs4) (4.9.3)
-    Requirement already satisfied: soupsieve>1.2 in /home/ndecao/.anaconda3/envs/nlp37/lib/python3.7/site-packages (from beautifulsoup4->bs4) (2.2.1)
-
-
-## End-to-End Entity Linking
+# Example: End-to-End Entity Linking
 
 Download one of the pre-trained models:
 
@@ -176,15 +207,15 @@ model.sample(
 
 
     [[{'text': 'In 1921, { Einstein } [ Albert Einstein ] received a { Nobel Prize } [ Nobel Prize in Physiology or Medicine ].',
-       'logprob': tensor(-0.9068)},
+       'score': tensor(-0.9068)},
       {'text': 'In 1921, { Einstein } [ Albert Einstein ] received a { Nobel Prize } [ Nobel Prize in Physiology or Medicine ] {. } [ Nobel Prize in Physiology or Medicine ]',
-       'logprob': tensor(-0.9301)},
+       'score': tensor(-0.9301)},
       {'text': 'In 1921, { Einstein } [ Albert Einstein ] received a { Nobel Prize } [ Nobel Prize in Physiology or Medicine ] {. } [ Albert Einstein ]',
-       'logprob': tensor(-0.9943)},
+       'score': tensor(-0.9943)},
       {'text': 'In 1921, { Einstein } [ Albert Einstein ] received a { Nobel Prize } [ Nobel Prize in Physiology or Physiology ].',
-       'logprob': tensor(-1.0778)},
+       'score': tensor(-1.0778)},
       {'text': 'In 1921, { Einstein } [ Albert Einstein ] received a { Nobel Prize } [ Nobel Prize in Physiology or Medicine ] {. } [ Ernest Einstein ]',
-       'logprob': tensor(-1.1164)}]]
+       'score': tensor(-1.1164)}]]
 
 
 
@@ -211,15 +242,15 @@ model.sample(
 
 
     [[{'text': 'In 1921, { Einstein } [ Albert Einstein ] received a Nobel Prize.',
-       'logprob': tensor(-1.4009)},
+       'score': tensor(-1.4009)},
       {'text': 'In 1921, { Einstein } [ Einstein (crater) ] received a Nobel Prize.',
-       'logprob': tensor(-1.6665)},
+       'score': tensor(-1.6665)},
       {'text': 'In 1921, { Einstein } [ Albert Albert Einstein ] received a Nobel Prize.',
-       'logprob': tensor(-1.7498)},
+       'score': tensor(-1.7498)},
       {'text': 'In 1921, { Einstein } [ Ernest Einstein ] received a Nobel Prize.',
-       'logprob': tensor(-1.8327)},
+       'score': tensor(-1.8327)},
       {'text': 'In 1921, { Einstein } [ Max Einstein ] received a Nobel Prize.',
-       'logprob': tensor(-1.8757)}]]
+       'score': tensor(-1.8757)}]]
 
 
 
@@ -246,15 +277,15 @@ model.sample(
 
 
     [[{'text': 'In 1921, { Einstein } [ Albert Einstein ] received a { Nobel Prize } [ Nobel Prize in Physics ].',
-       'logprob': tensor(-0.8925)},
+       'score': tensor(-0.8925)},
       {'text': 'In 1921, { Einstein } [ Albert Einstein ] received a { Nobel Prize. } [ Nobel Prize in Physics ]',
-       'logprob': tensor(-0.8990)},
+       'score': tensor(-0.8990)},
       {'text': 'In 1921, { Einstein } [ Albert Einstein ] received a { Nobel } [ Nobel Prize in Physics ] { Prize } [ Nobel Prize in Physics ].',
-       'logprob': tensor(-0.9330)},
+       'score': tensor(-0.9330)},
       {'text': 'In 1921, { Einstein } [ Albert Einstein ] received a { Nobel Prize } [ Nobel Prize in Physics ] {. } [ Nobel Prize in Physics ]',
-       'logprob': tensor(-0.9781)},
+       'score': tensor(-0.9781)},
       {'text': 'In 1921, { Einstein } [ Albert Einstein ] received a { Nobel Prize } [ Nobel Prize in Physics ] {. } [ Albert Einstein ]',
-       'logprob': tensor(-0.9854)}]]
+       'score': tensor(-0.9854)}]]
 
 
 
@@ -281,15 +312,15 @@ model.sample(
 
 
     [[{'text': 'In 1921, { Einstein } [ Einstein ] received a { Nobel } [ Nobel Prize in Physics ] Prize.',
-       'logprob': tensor(-1.5417)},
+       'score': tensor(-1.5417)},
       {'text': 'In 1921, { Einstein } [ Einstein ] received a Nobel Prize.',
-       'logprob': tensor(-2.1319)},
+       'score': tensor(-2.1319)},
       {'text': 'In 1921, { Einstein } [ Einstein ] received a { Nobel } [ Nobel Prize in Physics ] { Prize } [ NIL ].',
-       'logprob': tensor(-2.2816)},
+       'score': tensor(-2.2816)},
       {'text': 'In 1921, { Einstein } [ Einstein ] received a { Nobel } [ Nobel Prize in Physics ] { Prize. } [ NIL ]',
-       'logprob': tensor(-2.3914)},
+       'score': tensor(-2.3914)},
       {'text': 'In 1921, { Einstein } [ Einstein ] received a { Nobel Prize. } [ NIL ]',
-       'logprob': tensor(-2.9078)}]]
+       'score': tensor(-2.9078)}]]
 
 
 
@@ -320,15 +351,15 @@ model.sample(
 
 
     [[{'text': 'In 1921, { Einstein } [ Albert Einstein ] received a { Nobel Prize } [ Nobel Prize in Physics ].',
-       'logprob': tensor(-0.8925)},
+       'score': tensor(-0.8925)},
       {'text': 'In 1921, { Einstein } [ Einstein (surname) ] received a { Nobel Prize } [ Nobel Prize in Physics ].',
-       'logprob': tensor(-1.3275)},
+       'score': tensor(-1.3275)},
       {'text': 'In 1921, { Einstein } [ Albert Einstein ] received a Nobel Prize.',
-       'logprob': tensor(-1.4009)},
+       'score': tensor(-1.4009)},
       {'text': 'In 1921, Einstein received a { Nobel Prize } [ Nobel Prize in Physics ].',
-       'logprob': tensor(-1.8266)},
+       'score': tensor(-1.8266)},
       {'text': 'In 1921, Einstein received a Nobel Prize.',
-       'logprob': tensor(-3.4495)}]]
+       'score': tensor(-3.4495)}]]
 
 
 

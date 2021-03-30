@@ -254,7 +254,7 @@ if __name__ == "__main__":
     if not args.candidates and not args.free_generation:
         logging.info("Loading Trie from {}".format(args.trie))
         with open(args.trie, "rb") as f:
-            trie = pickle.load(f)
+            trie = Trie.load_from_dict(pickle.load(f))
     else:
         trie = None
 
