@@ -46,8 +46,13 @@ GENRE achieves state-of-the-art results on multiple datasets.
 * fairseq>=0.10 (optional for training GENRE) **NOTE: fairseq is going though changing without backward compatibility. Install `fairseq` from source and use [this](https://github.com/nicola-decao/fairseq/tree/fixing_prefix_allowed_tokens_fn) commit for reproducibilty. See [here](https://github.com/pytorch/fairseq/pull/3276) for the current PR that should fix `fairseq/master`.**
 * transformers>=4.2 (optional for inference of GENRE)
 
-## Usage
+## Examples & Usage
 
+For a full review of (m)GENRE API see:
+* [examples for GENRE](https://github.com/facebookresearch/GENRE/blob/main/examples_genre) on how to use GENRE for both pytorch fairseq and huggingface transformers;
+* [examples for mGENRE](https://github.com/facebookresearch/GENRE/blob/main/examples_mgenre) on how to use mGENRE.
+
+### GENRE
 After importing and loading the model and a prefix tree (trie), you would generate predictions (in this example for Entity Disambiguation) with a simple call like:
 
 ```python
@@ -79,6 +84,7 @@ model.sample(
       {'text': 'France', 'score': tensor(-4.2070)}]]
 
 
+### mGENRE
 Making predictions with mGENRE is very similar, but we additionally need to map `(title, language_ID)` to Wikidata IDs and (optionally) marginalize over predictions of the same entity:
 
 ```python
@@ -128,14 +134,10 @@ model.sample(
        'score': tensor(-3.6478)}]]
 
 
-For more complex esamples see:
-* how to use GENRE for both pytorch fairseq and huggingface transformers [here](https://github.com/facebookresearch/GENRE/blob/main/examples_genre);
-* how to use mGENRE [here](https://github.com/facebookresearch/GENRE/blob/main/examples_mgenre).
-
 
 ## Models & Datasets
 
-For **GENRE** use [this](https://github.com/facebookresearch/GENRE/blob/main/scripts/download_all_models.sh) script to download all of them or see [here](https://github.com/facebookresearch/GENRE/blob/main/examples_genre) the list of all individual models for each task and for both pytorch fairseq and huggingface transformers. See the [example](https://github.com/facebookresearch/GENRE/blob/main/examples_genre) on how to download additional optional files like the prefix tree (trie) for KILT Wikipedia.
+For **GENRE** use [this](https://github.com/facebookresearch/GENRE/blob/main/scripts_genre/download_all_models.sh) script to download all models and [this](https://github.com/facebookresearch/GENRE/blob/main/scripts_genre/download_all_datasets.sh) to download all datasets. See [here](https://github.com/facebookresearch/GENRE/blob/main/examples_genre) the list of all individual models for each task and for both pytorch fairseq and huggingface transformers. See the [example](https://github.com/facebookresearch/GENRE/blob/main/examples_genre) on how to download additional optional files like the prefix tree (trie) for KILT Wikipedia.
 
 For **mGENRE** we only have a model available [here](https://dl.fbaipublicfiles.com/GENRE/fairseq_multilingual_entity_disambiguation.tar.gz). See the [example](https://github.com/facebookresearch/GENRE/blob/main/examples_mgenre) on how to download additional optional files like the prefix tree (trie) for Wikipedia in all languages and the mapping between titles and Wikidata IDs.
 
