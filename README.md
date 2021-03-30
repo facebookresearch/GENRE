@@ -19,7 +19,9 @@ The mGENRE system as presented in [Multilingual Autoregressive Entity Linking](h
 ```bibtex
 @inproceedings{decao2020multilingual,
   title={Multilingual Autoregressive Entity Linking}, 
-  author={Nicola De Cao and Ledell Wu and Kashyap Popat and Mikel Artetxe and Naman Goyal and Mikhail Plekhanov and Luke Zettlemoyer and Nicola Cancedda and Sebastian Riedel and Fabio Petroni},
+  author={Nicola De Cao and Ledell Wu and Kashyap Popat and Mikel Artetxe and 
+          Naman Goyal and Mikhail Plekhanov and Luke Zettlemoyer and 
+          Nicola Cancedda and Sebastian Riedel and Fabio Petroni},
   booktitle={arXiv pre-print 2103.12528},
   url={https://arxiv.org/abs/2103.12528},
   year={2021},
@@ -100,7 +102,9 @@ model.sample(
     prefix_allowed_tokens_fn=lambda batch_id, sent: [
         e for e in trie.get(sent.tolist()) if e < len(model.task.target_dictionary)
     ],
-    text_to_id=lambda x: max(lang_title2wikidataID[tuple(reversed(x.split(" >> ")))], key=lambda y: int(y[1:])),
+    text_to_id=lambda x: max(lang_title2wikidataID[
+        tuple(reversed(x.split(" >> ")))
+    ], key=lambda y: int(y[1:])),
     marginalize=True,
 )
 ```
