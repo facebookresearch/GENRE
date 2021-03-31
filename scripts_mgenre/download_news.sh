@@ -12,7 +12,7 @@ cd wikinews
 
 for LANG in ar bg bs ca cs de el en eo es fa fi fr he hu it ja ko nl no pl pt ro ru sd sq sr sv ta th tr uk zh
 do
-    wget http://wikipedia.c3sl.ufpr.br/trwikinews/20191001/${LANG}wikinews-20191001-pages-articles-multistream.xml.bz2
+    wget http://wikipedia.c3sl.ufpr.br/${LANG}wikinews/20191001/${LANG}wikinews-20191001-pages-articles-multistream.xml.bz2
 done
 
 for LANG in ar bg bs ca cs de el en eo es fa fi fr he hu it ja ko nl no pl pt ro ru sd sq sr sv ta th tr uk zh
