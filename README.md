@@ -40,6 +40,10 @@ For end-to-end entity linking GENRE re-generates the input text annotated with a
 
 GENRE achieves state-of-the-art results on multiple datasets.
 
+mGENRE performs multilingual entity linking in 100+ languages treating language as latent variables and marginalizing over them:
+
+![](mGENRE-animation-EL.gif)
+
 ## Main dependencies
 * python>=3.7
 * pytorch>=1.6
