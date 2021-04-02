@@ -131,7 +131,6 @@ def _get_entity_spans(
     prefix_allowed_tokens_fn,
     redirections=None,
 ):
-
     output_sentences = model.sample(
         get_entity_spans_pre_processing(input_sentences),
         prefix_allowed_tokens_fn=prefix_allowed_tokens_fn,
@@ -143,14 +142,6 @@ def _get_entity_spans(
 
     return get_entity_spans_finalize(
         input_sentences, output_sentences, redirections=redirections
-    )
-
-    prefix_allowed_tokens_fn = get_end_to_end_prefix_allowed_tokens_fn_fairseq(
-        model,
-        get_entity_spans_pre_processing(input_sentences),
-        mention_trie=mention_trie,
-        candidates_trie=candidates_trie,
-        mention_to_candidates_dict=mention_to_candidates_dict,
     )
 
 
