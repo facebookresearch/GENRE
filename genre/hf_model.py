@@ -8,6 +8,7 @@ import logging
 from typing import Dict, List
 
 import torch
+from genre.utils import chunk_it
 from transformers import BartForConditionalGeneration, BartTokenizer
 
 logger = logging.getLogger(__name__)
@@ -28,6 +29,7 @@ class GENREHubInterface(BartForConditionalGeneration):
         outputs = self.generate(
             **input_args,
             min_length=0,
+            max_length=1024,
             num_beams=num_beams,
             num_return_sequences=num_return_sequences,
             output_scores=True,
@@ -35,18 +37,21 @@ class GENREHubInterface(BartForConditionalGeneration):
             **kwargs
         )
 
-        return [
-            {
-                "text": text,
-                "logprob": score,
-            }
-            for text, score in zip(
-                self.tokenizer.batch_decode(
-                    outputs.sequences, skip_special_tokens=True
-                ),
-                outputs.sequences_scores,
-            )
-        ]
+        return chunk_it(
+            [
+                {
+                    "text": text,
+                    "logprob": score,
+                }
+                for text, score in zip(
+                    self.tokenizer.batch_decode(
+                        outputs.sequences, skip_special_tokens=True
+                    ),
+                    outputs.sequences_scores,
+                )
+            ],
+            num_return_sequences,
+        )
 
     def encode(self, sentence):
         return self.tokenizer.encode(sentence, return_tensors="pt")[0]

@@ -125,14 +125,25 @@ def get_entity_spans_post_processing(sentences):
     return outputs
 
 
-def get_entity_spans_fairseq(
+def _get_entity_spans(
     model,
     input_sentences,
-    mention_trie=None,
-    candidates_trie=None,
-    mention_to_candidates_dict=None,
+    prefix_allowed_tokens_fn,
     redirections=None,
 ):
+
+    output_sentences = model.sample(
+        get_entity_spans_pre_processing(input_sentences),
+        prefix_allowed_tokens_fn=prefix_allowed_tokens_fn,
+    )
+
+    output_sentences = get_entity_spans_post_processing(
+        [e[0]["text"] for e in output_sentences]
+    )
+
+    return get_entity_spans_finalize(
+        input_sentences, output_sentences, redirections=redirections
+    )
 
     prefix_allowed_tokens_fn = get_end_to_end_prefix_allowed_tokens_fn_fairseq(
         model,
@@ -142,19 +153,26 @@ def get_entity_spans_fairseq(
         mention_to_candidates_dict=mention_to_candidates_dict,
     )
 
-    output_sentences = model.sample(
-        get_entity_spans_pre_processing(input_sentences),
-        prefix_allowed_tokens_fn=prefix_allowed_tokens_fn,
-        max_len_a=1024,
-        max_len_b=1024,
-    )
 
-    output_sentences = get_entity_spans_post_processing(
-        [e[0]["text"] for e in output_sentences]
-    )
-
-    return get_entity_spans_finalize(
-        input_sentences, output_sentences, redirections=redirections
+def get_entity_spans_fairseq(
+    model,
+    input_sentences,
+    mention_trie=None,
+    candidates_trie=None,
+    mention_to_candidates_dict=None,
+    redirections=None,
+):
+    return _get_entity_spans(
+        model,
+        input_sentences,
+        prefix_allowed_tokens_fn=get_end_to_end_prefix_allowed_tokens_fn_fairseq(
+            model,
+            get_entity_spans_pre_processing(input_sentences),
+            mention_trie=mention_trie,
+            candidates_trie=candidates_trie,
+            mention_to_candidates_dict=mention_to_candidates_dict,
+        ),
+        redirections=redirections,
     )
 
 
@@ -166,41 +184,22 @@ def get_entity_spans_hf(
     mention_to_candidates_dict=None,
     redirections=None,
 ):
-
-    input_args = {
-        k: v.to(model.device)
-        for k, v in model.tokenizer.batch_encode_plus(
-            get_entity_spans_pre_processing(input_sentences), return_tensors="pt"
-        ).items()
-    }
-
-    prefix_allowed_tokens_fn = get_end_to_end_prefix_allowed_tokens_fn_hf(
+    return _get_entity_spans(
         model,
-        get_entity_spans_pre_processing(input_sentences),
-        mention_trie=mention_trie,
-        candidates_trie=candidates_trie,
-        mention_to_candidates_dict=mention_to_candidates_dict,
-    )
-
-    output_sentences = model.tokenizer.batch_decode(
-        model.generate(
-            **input_args,
-            min_length=0,
-            num_beams=5,
-            num_return_sequences=1,
-            prefix_allowed_tokens_fn=prefix_allowed_tokens_fn,
+        input_sentences,
+        prefix_allowed_tokens_fn=get_end_to_end_prefix_allowed_tokens_fn_hf(
+            model,
+            get_entity_spans_pre_processing(input_sentences),
+            mention_trie=mention_trie,
+            candidates_trie=candidates_trie,
+            mention_to_candidates_dict=mention_to_candidates_dict,
         ),
-        skip_special_tokens=True,
-    )
-
-    output_sentences = get_entity_spans_post_processing(output_sentences)
-
-    return get_entity_spans_finalize(
-        input_sentences, output_sentences, redirections=redirections
+        redirections=redirections,
     )
 
 
 def get_entity_spans_finalize(input_sentences, output_sentences, redirections=None):
+
     return_outputs = []
     for input_, output_ in zip(input_sentences, output_sentences):
         input_ = input_.replace("\xa0", " ") + "  -"
