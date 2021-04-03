@@ -1,5 +1,5 @@
 unidecode
 requests
-kilt
-fairseq
+git+https://github.com/facebookresearch/KILT.git
+git+https://github.com/nicola-decao/fairseq.git@fixing_prefix_allowed_tokens_fn
 transformers
