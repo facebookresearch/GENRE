@@ -1,13 +1,11 @@
 # mGENRE for fairseq
 
 First make sure that you have [fairseq](https://github.com/pytorch/fairseq) installed.
-Since `fairseq` is going through breaking changes please install it from this fork and branch
-```
-https://github.com/nicola-decao/fairseq/tree/fixing_prefix_allowed_tokens_fn
-```
-and install it using: 
+Since `fairseq` is going through breaking changes please install it from [this](https://github.com/nicola-decao/fairseq/tree/fixing_prefix_allowed_tokens_fn) fork using: 
 ```bash
-pip install --editable ./ 
+git clone --branch fixing_prefix_allowed_tokens_fn https://github.com/nicola-decao/fairseq
+cd fairseq
+pip install --editable ./
 ``` 
 as described in the [fairseq repository](https://github.com/pytorch/fairseq#requirements-and-installation) since `pip install fairseq` has issues. 
 
