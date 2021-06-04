@@ -34,6 +34,9 @@ Use the links below to download datasets. As an alternative use [this](https://g
 - [WNED-CWEB](http://dl.fbaipublicfiles.com/GENRE/clueweb-test-kilt.jsonl) (11,154 lines, 38MiB)
 - [WNED-WIKI](http://dl.fbaipublicfiles.com/GENRE/wiki-test-kilt.jsonl) (6,821 lines, 19MiB)
 
+## Entity Linking (train)
+- [WIKI-ABSTRACTS](http://dl.fbaipublicfiles.com/GENRE/train_data_e2eEL.tar.gz) (6,221,563 lines, 5.1GiB)
+
 ## Document Retieval
 - KILT for the these datasets please follow the download instruction on the [KILT](https://github.com/facebookresearch/KILT) repository.
 

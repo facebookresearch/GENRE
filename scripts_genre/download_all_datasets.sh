@@ -24,4 +24,7 @@ wget http://dl.fbaipublicfiles.com/GENRE/msnbc-test-kilt.jsonl
 wget http://dl.fbaipublicfiles.com/GENRE/clueweb-test-kilt.jsonl
 wget http://dl.fbaipublicfiles.com/GENRE/wiki-test-kilt.jsonl
 
+### Entity Linking (train)
+wget http://dl.fbaipublicfiles.com/GENRE/train_data_e2eEL.tar.gz
+
 cd ..
