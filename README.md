@@ -145,6 +145,8 @@ For **GENRE** use [this](https://github.com/facebookresearch/GENRE/blob/main/scr
 
 For **mGENRE** we only have a model available [here](https://dl.fbaipublicfiles.com/GENRE/fairseq_multilingual_entity_disambiguation.tar.gz). See the [example](https://github.com/facebookresearch/GENRE/blob/main/examples_mgenre) on how to download additional optional files like the prefix tree (trie) for Wikipedia in all languages and the mapping between titles and Wikidata IDs.
 
+Pre-trained **mBART** model on 125 languages available [here](https://dl.fbaipublicfiles.com/GENRE/mbart.cc100.tar.gz).
+
 ## Troubleshooting
 If the module cannot be found, preface the python command with `PYTHONPATH=.`
 
