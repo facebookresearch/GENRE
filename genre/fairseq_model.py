@@ -91,7 +91,14 @@ class GENREHubInterface(BARTHubInterface):
     def generate(self, *args, **kwargs) -> List[List[Dict[str, torch.Tensor]]]:
         return super(BARTHubInterface, self).generate(*args, **kwargs)
 
+    def encode(self, sentence) -> torch.LongTensor:
+        tokens = super(BARTHubInterface, self).encode(sentence)
+        tokens[
+            tokens >= len(self.task.target_dictionary)
+        ] = self.task.target_dictionary.unk_index
+        return tokens
 
+    
 class GENRE(BARTModel):
     @classmethod
     def from_pretrained(
