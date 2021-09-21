@@ -83,9 +83,7 @@ model.sample(
 
     [[{'text': 'Germany', 'score': tensor(-0.1856)},
       {'text': 'Germans', 'score': tensor(-0.5461)},
-      {'text': 'German Empire', 'score': tensor(-2.1858)},
-      {'text': 'Nazi Germany', 'score': tensor(-2.4682)},
-      {'text': 'France', 'score': tensor(-4.2070)}]]
+      {'text': 'German Empire', 'score': tensor(-2.1858)}]
 
 
 ### mGENRE
