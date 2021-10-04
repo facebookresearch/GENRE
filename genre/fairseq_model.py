@@ -97,9 +97,9 @@ class GENREHubInterface(BARTHubInterface):
         tokens[
             tokens >= len(self.task.target_dictionary)
         ] = self.task.target_dictionary.unk_index
-        if tokens[0] != self.task.target_dictionary.eos_index:
+        if tokens[0] != self.task.target_dictionary.bos_index:
             return torch.cat(
-                (torch.tensor([self.task.target_dictionary.eos_index]), tokens)
+                (torch.tensor([self.task.target_dictionary.bos_index]), tokens)
             )
         else:
             return tokens
