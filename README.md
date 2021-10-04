@@ -83,9 +83,7 @@ model.sample(
 
     [[{'text': 'Germany', 'score': tensor(-0.1856)},
       {'text': 'Germans', 'score': tensor(-0.5461)},
-      {'text': 'German Empire', 'score': tensor(-2.1858)},
-      {'text': 'Nazi Germany', 'score': tensor(-2.4682)},
-      {'text': 'France', 'score': tensor(-4.2070)}]]
+      {'text': 'German Empire', 'score': tensor(-2.1858)}]
 
 
 ### mGENRE
@@ -144,6 +142,8 @@ model.sample(
 For **GENRE** use [this](https://github.com/facebookresearch/GENRE/blob/main/scripts_genre/download_all_models.sh) script to download all models and [this](https://github.com/facebookresearch/GENRE/blob/main/scripts_genre/download_all_datasets.sh) to download all datasets. See [here](https://github.com/facebookresearch/GENRE/blob/main/examples_genre) the list of all individual models for each task and for both pytorch fairseq and huggingface transformers. See the [example](https://github.com/facebookresearch/GENRE/blob/main/examples_genre) on how to download additional optional files like the prefix tree (trie) for KILT Wikipedia.
 
 For **mGENRE** we only have a model available [here](https://dl.fbaipublicfiles.com/GENRE/fairseq_multilingual_entity_disambiguation.tar.gz). See the [example](https://github.com/facebookresearch/GENRE/blob/main/examples_mgenre) on how to download additional optional files like the prefix tree (trie) for Wikipedia in all languages and the mapping between titles and Wikidata IDs.
+
+Pre-trained **mBART** model on 125 languages available [here](https://dl.fbaipublicfiles.com/GENRE/mbart.cc100.tar.gz).
 
 ## Troubleshooting
 If the module cannot be found, preface the python command with `PYTHONPATH=.`

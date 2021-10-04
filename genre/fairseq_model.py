@@ -104,7 +104,7 @@ class GENREHubInterface(BARTHubInterface):
         else:
             return tokens
 
-
+    
 class GENRE(BARTModel):
     @classmethod
     def from_pretrained(
