@@ -34,6 +34,7 @@ class GENREHubInterface(BARTHubInterface):
         if isinstance(sentences, str):
             return self.sample([sentences], beam=beam, verbose=verbose, **kwargs)[0]
         tokenized_sentences = [self.encode(sentence) for sentence in sentences]
+
         batched_hypos = self.generate(
             tokenized_sentences,
             beam,
@@ -90,6 +91,18 @@ class GENREHubInterface(BARTHubInterface):
 
     def generate(self, *args, **kwargs) -> List[List[Dict[str, torch.Tensor]]]:
         return super(BARTHubInterface, self).generate(*args, **kwargs)
+
+    def encode(self, sentence) -> torch.LongTensor:
+        tokens = super(BARTHubInterface, self).encode(sentence)
+        tokens[
+            tokens >= len(self.task.target_dictionary)
+        ] = self.task.target_dictionary.unk_index
+        if tokens[0] != self.task.target_dictionary.eos_index:
+            return torch.cat(
+                (torch.tensor([self.task.target_dictionary.eos_index]), tokens)
+            )
+        else:
+            return tokens
 
 
 class GENRE(BARTModel):
