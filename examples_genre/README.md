@@ -18,7 +18,7 @@ First make sure that you have [transformers](https://github.com/huggingface/tran
 
 # Datasets
 
-Use the links below to download datasets. As an alternative use [this](https://github.com/facebookresearch/GENRE/blob/main/scripts/download_all_datasets.sh) script to dowload all of them. These dataset (except BLINK data) are a pre-processed version of [Phong Le and Ivan Titov (2018)](https://arxiv.org/pdf/1804.10637.pdf) data availabe [here](https://github.com/lephong/mulrel-nel). BLINK data taken from [here](https://github.com/facebookresearch/KILT).
+Use the links below to download datasets. As an alternative use [this](https://github.com/facebookresearch/GENRE/blob/main/scripts_genre/download_all_datasets.sh) script to dowload all of them. These dataset (except BLINK data) are a pre-processed version of [Phong Le and Ivan Titov (2018)](https://arxiv.org/pdf/1804.10637.pdf) data availabe [here](https://github.com/lephong/mulrel-nel). BLINK data taken from [here](https://github.com/facebookresearch/KILT).
 
 ## Entity Disambiguation (train / dev)
 - [BLINK train](http://dl.fbaipublicfiles.com/KILT/blink-train-kilt.jsonl) (9,000,000 lines, 11GiB)
@@ -49,7 +49,7 @@ Then, to tokenize and binarize them as expected from `fairseq` use
 ```bash
 ./preprocess_fairseq.sh $DATASET_PATH $MODEL_PATH
 ```
-note that this requires to have `fairseq` source code downloaded in the same folder as the `genre` repository (see [here](https://github.com/facebookresearch/GENRE/blob/main/scripts/preprocess_fairseq.sh#L14)).
+note that this requires to have `fairseq` source code downloaded in the same folder as the `genre` repository (see [here](https://github.com/facebookresearch/GENRE/blob/main/scripts_genre/preprocess_fairseq.sh#L14)).
 
 ## Trie from KILT Wikipedia titles
 
