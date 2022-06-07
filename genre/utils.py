@@ -126,10 +126,7 @@ def get_entity_spans_post_processing(sentences):
 
 
 def _get_entity_spans(
-    model,
-    input_sentences,
-    prefix_allowed_tokens_fn,
-    redirections=None,
+    model, input_sentences, prefix_allowed_tokens_fn, redirections=None,
 ):
     output_sentences = model.sample(
         get_entity_spans_pre_processing(input_sentences),
@@ -468,11 +465,7 @@ def search_wikidata(query, label_alias2wikidataID):
 
 
 def get_wikidata_ids(
-    anchor,
-    lang,
-    lang_title2wikidataID,
-    lang_redirect2title,
-    label_or_alias2wikidataID,
+    anchor, lang, lang_title2wikidataID, lang_redirect2title, label_or_alias2wikidataID,
 ):
     success, result = search_simple(anchor, lang, label_or_alias2wikidataID)
     if success:
@@ -485,6 +478,46 @@ def get_wikidata_ids(
             return result, "wikipedia"
         else:
             return search_wikidata(result, label_or_alias2wikidataID), "wikidata"
+
+
+def post_process_wikidata(outputs, text_to_id=False, marginalize=False):
+
+    if text_to_id:
+        outputs = [
+            [{**hypo, "id": text_to_id(hypo["text"])} for hypo in hypos]
+            for hypos in outputs
+        ]
+
+        if marginalize:
+            for (i, hypos), hypos_tok in zip(enumerate(outputs), batched_hypos):
+                outputs_dict = defaultdict(list)
+                for hypo, hypo_tok in zip(hypos, hypos_tok):
+                    outputs_dict[hypo["id"]].append(
+                        {**hypo, "len": len(hypo_tok["tokens"])}
+                    )
+
+                outputs[i] = sorted(
+                    [
+                        {
+                            "id": _id,
+                            "texts": [hypo["text"] for hypo in hypos],
+                            "scores": torch.stack([hypo["score"] for hypo in hypos]),
+                            "score": torch.stack(
+                                [
+                                    hypo["score"]
+                                    * hypo["len"]
+                                    / (hypo["len"] ** marginalize_lenpen)
+                                    for hypo in hypos
+                                ]
+                            ).logsumexp(-1),
+                        }
+                        for _id, hypos in outputs_dict.items()
+                    ],
+                    key=lambda x: x["score"],
+                    reverse=True,
+                )
+
+    return outputs
 
 
 tr2016_langs = ["ar", "de", "es", "fr", "he", "it", "ta", "th", "tl", "tr", "ur", "zh"]

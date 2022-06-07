@@ -5,19 +5,29 @@
 # LICENSE file in the root directory of this source tree.
 
 import logging
-from typing import Dict, List
+from typing import List, Dict
 
 import torch
-from transformers import BartForConditionalGeneration, BartTokenizer
+from transformers import (
+    BartForConditionalGeneration,
+    BartTokenizer,
+    XLMRobertaTokenizer,
+)
 
-from genre.utils import chunk_it
+from genre.utils import chunk_it, post_process_wikidata
 
 logger = logging.getLogger(__name__)
 
 
 class GENREHubInterface(BartForConditionalGeneration):
     def sample(
-        self, sentences: List[str], num_beams: int = 5, num_return_sequences=5, **kwargs
+        self,
+        sentences: List[str],
+        num_beams: int = 5,
+        num_return_sequences=5,
+        text_to_id: Dict[str, str] = None,
+        marginalize: bool = False,
+        **kwargs
     ) -> List[str]:
 
         input_args = {
@@ -38,12 +48,9 @@ class GENREHubInterface(BartForConditionalGeneration):
             **kwargs
         )
 
-        return chunk_it(
+        outputs = chunk_it(
             [
-                {
-                    "text": text,
-                    "score": score,
-                }
+                {"text": text, "score": score,}
                 for text, score in zip(
                     self.tokenizer.batch_decode(
                         outputs.sequences, skip_special_tokens=True
@@ -54,6 +61,12 @@ class GENREHubInterface(BartForConditionalGeneration):
             len(sentences),
         )
 
+        outputs = post_process_wikidata(
+            outputs, text_to_id=text_to_id, marginalize=marginalize
+        )
+
+        return outputs
+
     def encode(self, sentence):
         return self.tokenizer.encode(sentence, return_tensors="pt")[0]
 
@@ -63,4 +76,12 @@ class GENRE(BartForConditionalGeneration):
     def from_pretrained(cls, model_name_or_path):
         model = GENREHubInterface.from_pretrained(model_name_or_path)
         model.tokenizer = BartTokenizer.from_pretrained(model_name_or_path)
+        return model
+
+
+class mGENRE(BartForConditionalGeneration):
+    @classmethod
+    def from_pretrained(cls, model_name_or_path):
+        model = GENREHubInterface.from_pretrained(model_name_or_path)
+        model.tokenizer = XLMRobertaTokenizer.from_pretrained(model_name_or_path)
         return model

@@ -114,11 +114,7 @@ def _get_end_to_end_prefix_allowed_tokens_fn(
             [
                 i
                 for i in range(vocabulary_length)
-                if i
-                not in (
-                    bos_token_id,
-                    pad_token_id,
-                )
+                if i not in (bos_token_id, pad_token_id,)
             ]
         )
 
@@ -127,11 +123,7 @@ def _get_end_to_end_prefix_allowed_tokens_fn(
             [
                 i
                 for i in range(vocabulary_length)
-                if i
-                not in (
-                    bos_token_id,
-                    pad_token_id,
-                )
+                if i not in (bos_token_id, pad_token_id,)
             ],
             codes,
         )

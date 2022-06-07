@@ -57,8 +57,8 @@ from genre.fairseq_model import mGENRE
 model = mGENRE.from_pretrained("../models/fairseq_multilingual_entity_disambiguation").eval()
 
 # for huggingface/transformers
-# from genre.hf_model import GENRE
-# model = GENRE.from_pretrained("../models/hf_entity_disambiguation_aidayago").eval()
+# from genre.hf_model import mGENRE
+# model = mGENRE.from_pretrained("../models/hf_multilingual_entity_disambiguation").eval()
 ```
 
 and simply use `.sample` to make predictions constraining using `prefix_allowed_tokens_fn`
