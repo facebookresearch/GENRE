@@ -41,7 +41,7 @@ class GENREHubInterface(BartForConditionalGeneration):
             [
                 {
                     "text": text,
-                    "logprob": score,
+                    "score": score,
                 }
                 for text, score in zip(
                     self.tokenizer.batch_decode(
@@ -50,7 +50,7 @@ class GENREHubInterface(BartForConditionalGeneration):
                     outputs.sequences_scores,
                 )
             ],
-            num_return_sequences,
+            len(sentences),
         )
 
     def encode(self, sentence):
