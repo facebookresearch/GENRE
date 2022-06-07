@@ -135,9 +135,11 @@ Then, load the model
 
 ```python
 # for pytorch/fairseq
+from genre.fairseq_model import GENRE
 model = GENRE.from_pretrained("../models/fairseq_wikipage_retrieval").eval()
 
 # for huggingface/transformers
+# from genre.hf_model import GENRE
 # model = GENRE.from_pretrained("../models/hf_wikipage_retrieval").eval()
 ```
 
@@ -178,11 +180,13 @@ Then, load the model
 
 ```python
 # for pytorch/fairseq
+from genre.fairseq_model import GENRE
 from genre.entity_linking import get_end_to_end_prefix_allowed_tokens_fn_fairseq as get_prefix_allowed_tokens_fn
 from genre.utils import get_entity_spans_fairseq as get_entity_spans
 model = GENRE.from_pretrained("../models/fairseq_e2e_entity_linking_aidayago").eval()
 
 # for huggingface/transformers
+# from genre.hf_model import GENRE
 # from genre.entity_linking import get_end_to_end_prefix_allowed_tokens_fn_hf as get_prefix_allowed_tokens_fn
 # from genre.utils import get_entity_spans_hf as get_entity_spans
 # model = GENRE.from_pretrained("../models/hf_e2e_entity_linking_aidayago").eval()
