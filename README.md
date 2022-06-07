@@ -5,7 +5,7 @@ The GENRE (Generative ENtity REtrieval) system as presented in [Autoregressive E
 ```bibtex
 @inproceedings{decao2020autoregressive,
   title={Autoregressive Entity Retrieval},
-  author={Nicola De Cao and Gautier Izacard and Sebastian Riedel and Fabio Petroni},
+  author={Nicola {De Cao} and Gautier Izacard and Sebastian Riedel and Fabio Petroni},
   booktitle={International Conference on Learning Representations},
   url={https://openreview.net/forum?id=5k8F6UU39V},
   year={2021}
@@ -17,14 +17,20 @@ The GENRE (Generative ENtity REtrieval) system as presented in [Autoregressive E
 The mGENRE system as presented in [Multilingual Autoregressive Entity Linking](https://arxiv.org/abs/2103.12528)
 
 ```bibtex
-@inproceedings{decao2020multilingual,
-  title={Multilingual Autoregressive Entity Linking}, 
-  author={Nicola De Cao and Ledell Wu and Kashyap Popat and Mikel Artetxe and 
-          Naman Goyal and Mikhail Plekhanov and Luke Zettlemoyer and 
-          Nicola Cancedda and Sebastian Riedel and Fabio Petroni},
-  booktitle={arXiv pre-print 2103.12528},
-  url={https://arxiv.org/abs/2103.12528},
-  year={2021},
+@article{decao2020multilingual,
+    author = {De Cao, Nicola and Wu, Ledell and Popat, Kashyap and Artetxe, Mikel 
+    and Goyal, Naman and Plekhanov, Mikhail and Zettlemoyer, Luke 
+    and Cancedda, Nicola and Riedel, Sebastian and Petroni, Fabio},
+    title = "{Multilingual Autoregressive Entity Linking}",
+    journal = {Transactions of the Association for Computational Linguistics},
+    volume = {10},
+    pages = {274-290},
+    year = {2022},
+    month = {03},
+    issn = {2307-387X},
+    doi = {10.1162/tacl_a_00460},
+    url = {https://doi.org/10.1162/tacl\_a\_00460},
+    eprint = {https://direct.mit.edu/tacl/article-pdf/doi/10.1162/tacl\_a\_00460/2004070/tacl\_a\_00460.pdf},
 }
 ```
 
