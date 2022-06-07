@@ -3,3 +3,4 @@ requests
 kilt
 fairseq
 transformers
+bs4
