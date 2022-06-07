@@ -8,8 +8,9 @@ import logging
 from typing import Dict, List
 
 import torch
-from genre.utils import chunk_it
 from transformers import BartForConditionalGeneration, BartTokenizer
+
+from genre.utils import chunk_it
 
 logger = logging.getLogger(__name__)
 

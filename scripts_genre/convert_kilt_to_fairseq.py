@@ -26,7 +26,14 @@ def convert_kilt_to_fairseq(dataset):
             for prov in out["provenance"]
             if prov.get("bleu_score", 1) > 0.5
         ):
-            source.append(create_input(doc, max_length=384, start_delimiter="[START_ENT]", end_delimiter="[END_ENT]"))
+            source.append(
+                create_input(
+                    doc,
+                    max_length=384,
+                    start_delimiter="[START_ENT]",
+                    end_delimiter="[END_ENT]",
+                )
+            )
             target.append(title)
             if "meta" in doc and "template_questions" in doc["meta"]:
                 for template_question in doc["meta"]["template_questions"]:

@@ -3,8 +3,8 @@ from unittest.mock import ANY
 
 import pytest
 
-from genre.trie import Trie
 from genre.fairseq_model import GENRE, GENREHubInterface
+from genre.trie import Trie
 
 
 @pytest.fixture(scope="session")

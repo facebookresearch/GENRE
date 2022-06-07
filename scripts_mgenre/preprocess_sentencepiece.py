@@ -23,12 +23,12 @@ class MultiprocessingEncoder(object):
         sp = spm.SentencePieceProcessor(model_file=self.args.model)
         old2new = None
         if self.args.product_vocab_size is not None:
-            assert sp.vocab_size() <= self.args.product_vocab_size ** 2
+            assert sp.vocab_size() <= self.args.product_vocab_size**2
             rand = random.Random(self.args.seed)
             old2new = [
                 (x // self.args.product_vocab_size, x % self.args.product_vocab_size)
                 for x in rand.sample(
-                    range(self.args.product_vocab_size ** 2), sp.vocab_size()
+                    range(self.args.product_vocab_size**2), sp.vocab_size()
                 )
             ]
 

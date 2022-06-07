@@ -67,8 +67,9 @@ After importing and loading the model and a prefix tree (trie), you would genera
 
 ```python
 import pickle
-from genre.trie import Trie
+
 from genre.fairseq_model import GENRE
+from genre.trie import Trie
 
 # load the prefix tree (trie)
 with open("../data/kilt_titles_trie_dict.pkl", "rb") as f:
@@ -97,8 +98,9 @@ Making predictions with mGENRE is very similar, but we additionally need to map 
 
 ```python
 import pickle
-from genre.trie import Trie, MarisaTrie
+
 from genre.fairseq_model import mGENRE
+from genre.trie import MarisaTrie, Trie
 
 with open("../data/lang_title2wikidataID-normalized_with_redirect.pkl", "rb") as f:
     lang_title2wikidataID = pickle.load(f)
