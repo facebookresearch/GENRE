@@ -71,7 +71,10 @@ sentences = ["[START] Einstein [END] era un fisico tedesco."]
 model.sample(
     sentences,
     prefix_allowed_tokens_fn=lambda batch_id, sent: [
-        e for e in trie.get(sent.tolist()) if e < len(model.task.target_dictionary)
+        e for e in trie.get(sent.tolist())
+        if e < len(model.task.target_dictionary)
+        # for huggingface/transformers
+        # if e < len(model2.tokenizer) - 1
     ],
 )
 ```
@@ -94,7 +97,10 @@ Additionally, we can use the `lang_title2wikidataID` dictionary to map the gener
 model.sample(
     sentences,
     prefix_allowed_tokens_fn=lambda batch_id, sent: [
-        e for e in trie.get(sent.tolist()) if e < len(model.task.target_dictionary)
+        e for e in trie.get(sent.tolist())
+        if e < len(model.task.target_dictionary)
+        # for huggingface/transformers
+        # if e < len(model2.tokenizer) - 1
     ],
     text_to_id=lambda x: max(lang_title2wikidataID[tuple(reversed(x.split(" >> ")))], key=lambda y: int(y[1:])),
     marginalize=True,
@@ -155,7 +161,10 @@ trie_of_mention = Trie([
 model.sample(
     sentences,
     prefix_allowed_tokens_fn=lambda batch_id, sent: [
-        e for e in trie_of_mention.get(sent.tolist()) if e < len(model.task.target_dictionary)
+        e for e in trie_of_mention.get(sent.tolist())
+        if e < len(model.task.target_dictionary)
+        # for huggingface/transformers
+        # if e < len(model2.tokenizer) - 1
     ],
     text_to_id=lambda x: max(lang_title2wikidataID[tuple(reversed(x.split(" >> ")))], key=lambda y: int(y[1:])),
     marginalize=True,
