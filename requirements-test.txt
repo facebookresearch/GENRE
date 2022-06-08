@@ -1,3 +1,4 @@
 torch
 requests
 pytest
+bs4
