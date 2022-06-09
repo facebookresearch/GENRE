@@ -16,7 +16,7 @@ from genre.utils import post_process_wikidata
 logger = logging.getLogger(__name__)
 
 
-class GENREHubInterface(BARTHubInterface):
+class _GENREHubInterface:
     def sample(
         self,
         sentences: List[str],
@@ -71,6 +71,11 @@ class GENREHubInterface(BARTHubInterface):
         else:
             return tokens
 
+class GENREHubInterface(_GENREHubInterface, BARTHubInterface):
+    pass
+    
+class mGENREHubInterface(_GENREHubInterface, BARTHubInterface):
+    pass
 
 class GENRE(BARTModel):
     @classmethod
@@ -94,7 +99,6 @@ class GENRE(BARTModel):
             **kwargs,
         )
         return GENREHubInterface(x["args"], x["task"], x["models"][0])
-
 
 class mGENRE(BARTModel):
     @classmethod
@@ -120,4 +124,4 @@ class mGENRE(BARTModel):
             sentencepiece_model=os.path.join(model_name_or_path, sentencepiece_model),
             **kwargs,
         )
-        return GENREHubInterface(x["args"], x["task"], x["models"][0])
+        return mGENREHubInterface(x["args"], x["task"], x["models"][0])

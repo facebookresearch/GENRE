@@ -4,3 +4,4 @@ kilt
 fairseq
 transformers
 bs4
+marisa_trie

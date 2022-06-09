@@ -9,9 +9,10 @@ from typing import List, Dict
 
 import torch
 from transformers import (
-    BartForConditionalGeneration,
     BartTokenizer,
+    BartForConditionalGeneration,
     XLMRobertaTokenizer,
+    MBartForConditionalGeneration,
 )
 
 from genre.utils import chunk_it, post_process_wikidata
@@ -19,7 +20,7 @@ from genre.utils import chunk_it, post_process_wikidata
 logger = logging.getLogger(__name__)
 
 
-class GENREHubInterface(BartForConditionalGeneration):
+class _GENREHubInterface:
     def sample(
         self,
         sentences: List[str],
@@ -70,6 +71,11 @@ class GENREHubInterface(BartForConditionalGeneration):
     def encode(self, sentence):
         return self.tokenizer.encode(sentence, return_tensors="pt")[0]
 
+class GENREHubInterface(_GENREHubInterface, BartForConditionalGeneration):
+    pass
+    
+class mGENREHubInterface(_GENREHubInterface, MBartForConditionalGeneration):
+    pass
 
 class GENRE(BartForConditionalGeneration):
     @classmethod
@@ -79,9 +85,9 @@ class GENRE(BartForConditionalGeneration):
         return model
 
 
-class mGENRE(BartForConditionalGeneration):
+class mGENRE(MBartForConditionalGeneration):
     @classmethod
     def from_pretrained(cls, model_name_or_path):
-        model = GENREHubInterface.from_pretrained(model_name_or_path)
+        model = mGENREHubInterface.from_pretrained(model_name_or_path)
         model.tokenizer = XLMRobertaTokenizer.from_pretrained(model_name_or_path)
         return model
