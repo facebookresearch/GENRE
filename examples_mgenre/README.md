@@ -16,10 +16,10 @@ as described in the [fairseq repository](https://github.com/pytorch/fairseq#requ
 * optionally, we can use a **mention table** to restrict the search space to a number of candidates [mention2wikidataID_with_titles_label_alias_redirect](https://dl.fbaipublicfiles.com/GENRE/mention2wikidataID_with_titles_label_alias_redirect.pkl).
 
 
-# mGENRE for transformers (coming soon!)
+# mGENRE for transformers
 
 First make sure that you have [transformers](https://github.com/huggingface/transformers) >=4.2.0 installed. 
-**NOTE: we used fairseq for all experiments in the paper. The huggingface/transformers models are obtained with a conversion script similar to [this](https://github.com/huggingface/transformers/blob/master/src/transformers/models/bart/convert_bart_original_pytorch_checkpoint_to_pytorch.py).**
+**NOTE: we used fairseq for all experiments in the paper. The huggingface/transformers models are obtained with a [conversion script](https://github.com/facebookresearch/GENRE/blob/main/scripts_genre/convert_bart_original_pytorch_checkpoint_to_pytorch.py).**
 
 Then load the trie and define the function to apply the constraints with the entities trie
 
