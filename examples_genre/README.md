@@ -12,7 +12,7 @@ as described in the [fairseq repository](https://github.com/pytorch/fairseq#requ
 # GENRE for transformers
 
 First make sure that you have [transformers](https://github.com/huggingface/transformers) >=4.2.0 installed. 
-**NOTE: we used fairseq for all experiments in the paper. The huggingface/transformers models are obtained with a conversion script similar to [this](https://github.com/huggingface/transformers/blob/master/src/transformers/models/bart/convert_bart_original_pytorch_checkpoint_to_pytorch.py).**
+**NOTE: we used fairseq for all experiments in the paper. The huggingface/transformers models are obtained with a [conversion script](https://github.com/facebookresearch/GENRE/blob/main/scripts_genre/convert_bart_original_pytorch_checkpoint_to_pytorch.py).**
 
 <hr>
 
