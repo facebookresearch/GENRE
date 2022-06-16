@@ -17,20 +17,26 @@ The GENRE (Generative ENtity REtrieval) system as presented in [Autoregressive E
 The mGENRE system as presented in [Multilingual Autoregressive Entity Linking](https://arxiv.org/abs/2103.12528)
 
 ```bibtex
-@article{decao2020multilingual,
-    author = {De Cao, Nicola and Wu, Ledell and Popat, Kashyap and Artetxe, Mikel 
-    and Goyal, Naman and Plekhanov, Mikhail and Zettlemoyer, Luke 
-    and Cancedda, Nicola and Riedel, Sebastian and Petroni, Fabio},
-    title = "{Multilingual Autoregressive Entity Linking}",
-    journal = {Transactions of the Association for Computational Linguistics},
-    volume = {10},
-    pages = {274-290},
-    year = {2022},
-    month = {03},
-    issn = {2307-387X},
-    doi = {10.1162/tacl_a_00460},
-    url = {https://doi.org/10.1162/tacl\_a\_00460},
-    eprint = {https://direct.mit.edu/tacl/article-pdf/doi/10.1162/tacl\_a\_00460/2004070/tacl\_a\_00460.pdf},
+@article{de-cao-etal-2022-multilingual,
+    title = "Multilingual Autoregressive Entity Linking",
+    author = "De Cao, Nicola  and
+      Wu, Ledell  and
+      Popat, Kashyap  and
+      Artetxe, Mikel  and
+      Goyal, Naman  and
+      Plekhanov, Mikhail  and
+      Zettlemoyer, Luke  and
+      Cancedda, Nicola  and
+      Riedel, Sebastian  and
+      Petroni, Fabio",
+    journal = "Transactions of the Association for Computational Linguistics",
+    volume = "10",
+    year = "2022",
+    address = "Cambridge, MA",
+    publisher = "MIT Press",
+    url = "https://aclanthology.org/2022.tacl-1.16",
+    doi = "10.1162/tacl_a_00460",
+    pages = "274--290",
 }
 ```
 
