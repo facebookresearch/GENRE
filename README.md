@@ -3,12 +3,17 @@
 The GENRE (Generative ENtity REtrieval) system as presented in [Autoregressive Entity Retrieval](https://arxiv.org/abs/2010.00904) implemented in pytorch.
 
 ```bibtex
-@inproceedings{decao2020autoregressive,
-  title={Autoregressive Entity Retrieval},
-  author={Nicola {De Cao} and Gautier Izacard and Sebastian Riedel and Fabio Petroni},
-  booktitle={International Conference on Learning Representations},
-  url={https://openreview.net/forum?id=5k8F6UU39V},
-  year={2021}
+@inproceedings{decao2021autoregressive,
+  author    = {Nicola {De Cao} and
+               Gautier Izacard and
+               Sebastian Riedel and
+               Fabio Petroni},
+  title     = {Autoregressive Entity Retrieval},
+  booktitle = {9th International Conference on Learning Representations, {ICLR} 2021,
+               Virtual Event, Austria, May 3-7, 2021},
+  publisher = {OpenReview.net},
+  year      = {2021},
+  url       = {https://openreview.net/forum?id=5k8F6UU39V},
 }
 ```
 
