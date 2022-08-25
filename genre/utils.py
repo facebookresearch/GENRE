@@ -162,7 +162,7 @@ def get_entity_spans_fairseq(
             mention_to_candidates_dict=mention_to_candidates_dict,
         ),
         redirections=redirections,
-        return_scores=False,
+        return_scores=return_scores,
     )
 
 
@@ -186,7 +186,7 @@ def get_entity_spans_hf(
             mention_to_candidates_dict=mention_to_candidates_dict,
         ),
         redirections=redirections,
-        return_scores=False,
+        return_scores=return_scores,
     )
 
 
