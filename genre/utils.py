@@ -133,11 +133,9 @@ def _get_entity_spans(
         prefix_allowed_tokens_fn=prefix_allowed_tokens_fn,
     )
 
-    output_sentences = get_entity_spans_post_processing(
-        [e[0]["text"] for e in output_sentences]
-    )
-
+    output_texts = [e[0]["text"] for e in output_sentences]
     scores = [float(e[0]["score"]) for e in output_sentences]
+    output_sentences = get_entity_spans_post_processing(output_texts)
 
     return get_entity_spans_finalize(
         input_sentences, output_sentences, redirections=redirections, scores=(scores if return_scores else None)
