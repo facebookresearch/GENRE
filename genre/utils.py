@@ -126,19 +126,19 @@ def get_entity_spans_post_processing(sentences):
 
 
 def _get_entity_spans(
-    model, input_sentences, prefix_allowed_tokens_fn, redirections=None,
+    model, input_sentences, prefix_allowed_tokens_fn, redirections=None, return_scores=False,
 ):
     output_sentences = model.sample(
         get_entity_spans_pre_processing(input_sentences),
         prefix_allowed_tokens_fn=prefix_allowed_tokens_fn,
     )
 
-    output_sentences = get_entity_spans_post_processing(
-        [e[0]["text"] for e in output_sentences]
-    )
+    output_texts = [e[0]["text"] for e in output_sentences]
+    scores = [float(e[0]["score"]) for e in output_sentences]
+    output_sentences = get_entity_spans_post_processing(output_texts)
 
     return get_entity_spans_finalize(
-        input_sentences, output_sentences, redirections=redirections
+        input_sentences, output_sentences, redirections=redirections, scores=(scores if return_scores else None)
     )
 
 
@@ -149,6 +149,7 @@ def get_entity_spans_fairseq(
     candidates_trie=None,
     mention_to_candidates_dict=None,
     redirections=None,
+    return_scores=False,
 ):
     return _get_entity_spans(
         model,
@@ -161,6 +162,7 @@ def get_entity_spans_fairseq(
             mention_to_candidates_dict=mention_to_candidates_dict,
         ),
         redirections=redirections,
+        return_scores=return_scores,
     )
 
 
@@ -171,6 +173,7 @@ def get_entity_spans_hf(
     candidates_trie=None,
     mention_to_candidates_dict=None,
     redirections=None,
+    return_scores=False,
 ):
     return _get_entity_spans(
         model,
@@ -183,13 +186,16 @@ def get_entity_spans_hf(
             mention_to_candidates_dict=mention_to_candidates_dict,
         ),
         redirections=redirections,
+        return_scores=return_scores,
     )
 
 
-def get_entity_spans_finalize(input_sentences, output_sentences, redirections=None):
+def get_entity_spans_finalize(input_sentences, output_sentences, redirections=None, scores=None):
+
+    scores = scores or [None for _ in range(len(output_sentences))]
 
     return_outputs = []
-    for input_, output_ in zip(input_sentences, output_sentences):
+    for input_, output_, score_ in zip(input_sentences, output_sentences, scores):
         input_ = input_.replace("\xa0", " ") + "  -"
         output_ = output_.replace("\xa0", " ") + "  -"
 
@@ -210,7 +216,11 @@ def get_entity_spans_finalize(input_sentences, output_sentences, redirections=No
                 elif input_[i] == " ":
                     i += 1
                 elif output_[j] == "{":
-                    entities.append([i, 0, ""])
+                    entities.append(
+                        [i, 0, ""]
+                        if score_ is None
+                        else [i, 0, "", score_]
+                    )
                     j += 1
                     status = "m"
                 else:
