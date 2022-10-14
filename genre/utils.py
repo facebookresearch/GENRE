@@ -7,6 +7,7 @@
 import html
 import re
 import xml.etree.ElementTree as ET
+import torch
 from collections import defaultdict
 from urllib.parse import unquote
 
