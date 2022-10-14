@@ -482,7 +482,8 @@ def get_wikidata_ids(
 
 
 def post_process_wikidata(outputs, text_to_id=False, marginalize=False,
-                                                     batched_hypos=None):
+                                                     batched_hypos=None,
+                                                     marginalize_lenpen=0.5):
 
     if text_to_id:
         outputs = [
