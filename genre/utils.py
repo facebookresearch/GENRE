@@ -480,7 +480,8 @@ def get_wikidata_ids(
             return search_wikidata(result, label_or_alias2wikidataID), "wikidata"
 
 
-def post_process_wikidata(outputs, text_to_id=False, marginalize=False):
+def post_process_wikidata(outputs, text_to_id=False, marginalize=False,
+                                                     batched_hypos=None):
 
     if text_to_id:
         outputs = [
